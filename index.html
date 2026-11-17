@@ -1393,12 +1393,6 @@ var BL = (function () {
     ['Foi demitido por mensagem de áudio de 4 segundos.', [['money', -100], ['sanity', -20]]],
     ['Seu terapeuta pediu terapia depois de te atender.', [['sanity', -15], ['curse']]],
     ['Achou a carteira do rico do grupo e devolveu sem o dinheiro.', [['fromEach', 40]]],
-    ['Desafio na rua! Você chamou alguém aleatório pro mano a mano. Quem perder o minigame paga B$150.', [['duel', 150]]],
-    ['Discussão no grupo da família saiu do controle. Resolvam no minigame: quem perder paga B$120.', [['duel', 120]]],
-    ['Racha na avenida às 3 da manhã contra um vizinho aleatório. Quem perder paga B$200 e a multa.', [['duel', 200]]],
-    ['Briga na fila do mercado por causa da última promoção. Minigame valendo B$100.', [['duel', 100]]],
-    ['Vocês dois disputam a mesma vaga de garagem. Minigame decide: quem perder paga B$150.', [['duel', 150]]],
-    ['Aposta de bêbado no bar: o perdedor paga B$180 e ainda paga a conta da mesa.', [['duel', 180]]],
     ['Seu velório teve mais gente que seu aniversário. Pena que você só tinha desmaiado.', [['sanity', -20]]],
     ['Vendeu o jazigo da família no Mercado Livre. A vó vai ter que dividir gaveta.', [['money', 200], ['sanity', -10]]],
     ['O plano funerário cobria tudo, menos o defunto. Pague o caixão.', [['money', -180]]],
@@ -2418,6 +2412,7 @@ var BL = (function () {
     if (steps > 0 && from + steps >= 40) passStart(S, p, to === 0);
     p.pos = to; p.moveId = uid(); p.moveFrom = from; p.moveSteps = steps;
     busy(S, Math.abs(steps) <= 14 ? Math.abs(steps) * STEP_MS + 300 + passes(S, p, from, steps) * PASS_MS : 900);
+    if (steps > 0) maybeDuel(S, p);
 
     resolveTile(S, p, now);
   }
@@ -5534,7 +5529,7 @@ function duelHTML(V, M){
   var A = V.players[D.a], B = V.players[D.b];
   var mine = N.mode === 'local' || (M && (M.i === D.a || M.i === D.b));
   var face = function(p){ return '<div class="dfighter" style="--pc:' + p.color + '"><span class="vav" data-mood="grr">' + pieceSVG(p.piece) + '</span><b>' + esc(p.name) + '</b><span class="dres" id="dres-' + p.i + '"></span></div>'; };
-  var h = '<div class="ach">' + (D.event ? '🎮 Minigame da rodada' : '⚔️ Desafio') + '</div><div class="dvs">' + face(A) + '<span class="vs">x</span>' + face(B) + '</div>' +
+  var h = '<div class="ach">' + (D.event ? '🎮 Minigame da rodada' : '⚔️ Duelo relâmpago') + '</div><div class="dvs">' + face(A) + '<span class="vs">x</span>' + face(B) + '</div>' +
     '<div class="dgame"><b>' + esc(D.n) + '</b><span>' + esc(D.d) + '</span></div>' +
     '<div class="darena" id="darena" data-game="' + D.game + '" data-id="' + D.id + '" data-mine="' + (mine ? 1 : 0) + '"></div>';
   return h;
@@ -5604,7 +5599,7 @@ var HELP = [
   ['🎲', 'Sua vez', 'Role os dados e ande. Casa sem dono: compre ou passe. Passar pelo começo dá B$300. Casa de outro: pague aluguel. Tirou uma Ordem de Despejo no Sorte? Use na sua vez pra tomar o imóvel de alguém pagando o dobro.'],
   ['🧠', 'Sua casa e sua sanidade', 'Caiu na sua própria casa: se tiver todos os terrenos da cor, construa um andar (aluguel sobe); ou relaxe pra recuperar sanidade, ou só pule. Se a sanidade zerar, você surta, perde a vez e vende uma casa no desespero.'],
   ['⚖️', 'Casas especiais', 'Sorte ou revés tem cartas de humor pesado, algumas mandam um imóvel seu pra obra. Tribunal é votação. Maldição te dá uma carta pra jogar nos outros. Fofoca dobra um aluguel seu. Uber bêbado leva pra qualquer casa. Sogra é a prisão.'],
-  ['📰', 'Caos extra', 'A cada 3 rodadas sai um Plantão da semana. A cada 7 rodadas o banco faz um Leilão. Os minigames agora saem nas cartas de Sorte ou Revés: você enfrenta alguém aleatório valendo dinheiro. Na sua vez, antes de rolar, dá pra Negociar imóveis e dinheiro com os outros.'],
+  ['📰', 'Caos extra', 'A cada 3 rodadas sai um Plantão da semana. A cada 7 rodadas o banco faz um Leilão. Caiu na mesma casa que alguém? Rola um minigame valendo dinheiro. Na sua vez, antes de rolar, dá pra Negociar imóveis e dinheiro com os outros.'],
   ['👻', 'Fantasma e zoeira', 'Faliu? Vira fantasma e continua assombrando todo mundo. Use o botão Zoeira pra provocar com a sua peça e mandar reações. E toque nas coisas do bairro no meio do tabuleiro: janelas, mendigo, gato no lixo, pombo, bar, igreja, viatura… todo mundo vê o que você aprontar. A qualquer hora, toque no ? pra rever tudo.']
 ];
 var helpIdx = 0;
