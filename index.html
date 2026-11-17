@@ -1212,6 +1212,22 @@ body.drunk #stage{animation:drunk 4s ease-in-out infinite;filter:blur(.6px) satu
 @keyframes drunk{0%,100%{transform:rotate(0) translateX(0)}25%{transform:rotate(1.4deg) translateX(8px)}75%{transform:rotate(-1.4deg) translateX(-8px)}}
 .drunkbadge{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:60;background:#ffcf3f;border:3px solid var(--ink);border-radius:14px;padding:4px 12px;font-weight:800;pointer-events:none}
 @media (prefers-reduced-motion:reduce){body.drunk #stage{animation:none}.reel.run .strip{animation-duration:1.2s}}
+/* ===== v7.6: obras + promoção relâmpago ===== */
+.tile.obra{filter:saturate(.55)}
+.tile .obratag{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-12deg);z-index:6;background:repeating-linear-gradient(45deg,#ffcf3f 0 8px,#2b2730 8px 16px);border:2px solid var(--ink);border-radius:6px;padding:2px 4px;pointer-events:none;white-space:nowrap}
+.tile .obratag b{background:#ffcf3f;color:var(--ink);font-family:'Bangers',cursive;font-size:16px;letter-spacing:.5px;padding:0 4px;border-radius:3px;display:block;line-height:1.2}
+.tile .obratag i{position:absolute;right:-12px;top:-14px;font-style:normal;font-size:18px}
+#flashbar{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:70;display:flex;gap:10px;align-items:center;background:#e2263f;color:#fff;border:4px solid var(--ink);border-radius:18px;padding:8px 12px;box-shadow:0 6px 0 rgba(43,39,48,.9);max-width:94vw;flex-wrap:wrap;justify-content:center}
+#flashbar.on{animation:flashin .4s cubic-bezier(.2,1.6,.4,1),flashpulse .5s ease .4s infinite alternate}
+@keyframes flashin{from{transform:translateX(-50%) scale(.3)}}
+@keyframes flashpulse{to{box-shadow:0 6px 0 rgba(43,39,48,.9),0 0 26px #ffcf3f}}
+#flashbar .ft{font-family:'Luckiest Guy',cursive;font-size:20px;letter-spacing:.5px;line-height:1.1;text-align:center}
+#flashbar button{font-family:'Luckiest Guy',cursive;font-size:20px;background:#ffcf3f;min-height:44px;padding:6px 16px;border-radius:14px}
+#flashbar.res{background:#2b2730}
+#flashbar.res.golpe{background:#6d0a1a}
+#flashbar .cd{font-family:'Luckiest Guy',cursive;font-size:28px;color:#ffcf3f}
+.outdoor.flash{animation:flashpulse .35s ease infinite alternate}
+@media (prefers-reduced-motion:reduce){#flashbar.on{animation:none}}
 </style>
 </head>
 <body>
@@ -1373,7 +1389,59 @@ var BL = (function () {
     ['O velho da lancha era seu avô. Ele te deixou a lancha e as multas.', [['money', 130]]],
     ['Foi demitido por mensagem de áudio de 4 segundos.', [['money', -100], ['sanity', -20]]],
     ['Seu terapeuta pediu terapia depois de te atender.', [['sanity', -15], ['curse']]],
-    ['Achou a carteira do rico do grupo e devolveu sem o dinheiro.', [['fromEach', 40]]]
+    ['Achou a carteira do rico do grupo e devolveu sem o dinheiro.', [['fromEach', 40]]],
+    ['Seu velório teve mais gente que seu aniversário. Pena que você só tinha desmaiado.', [['sanity', -20]]],
+    ['Vendeu o jazigo da família no Mercado Livre. A vó vai ter que dividir gaveta.', [['money', 200], ['sanity', -10]]],
+    ['O plano funerário cobria tudo, menos o defunto. Pague o caixão.', [['money', -180]]],
+    ['Seu avô morreu e deixou no testamento: "pro neto que nunca ligou, nada". Era você.', [['sanity', -25]]],
+    ['Ganhou o processo contra o hospital que esqueceu uma tesoura dentro de você.', [['money', 250]]],
+    ['A milícia do bairro cobrou taxa de segurança. Segurança contra eles mesmos.', [['money', -150]]],
+    ['O pastor curou sua dívida com oração. O banco não acredita em milagre.', [['money', -120], ['sanity', 10]]],
+    ['Seu ex morreu e deixou a fatura do cartão no seu nome. Romântico até o fim.', [['money', -200]]],
+    ['Doou o corpo pra ciência ainda em vida. Já estão usando o fígado.', [['money', 180], ['sanity', -20]]],
+    ['A família fez vaquinha pro seu tratamento e gastou tudo em churrasco. Te chamaram pro churrasco.', [['sanity', -30]]],
+    ['O INSS te declarou morto. Ressuscitar no sistema custa uma taxa e 3 anos de fila.', [['money', -100], ['sanity', -15]]],
+    ['Herdou a dívida do avô com o agiota. Juros desde 1987.', [['money', -250]]],
+    ['Bateu no carro do agiota. Ele ficou com tanto medo de você que pagou o conserto.', [['money', 120]]],
+    ['Seu nome tá no SPC, no Serasa e escrito no muro do bar.', [['money', -80], ['sanity', -15]]],
+    ['O psiquiatra te deu alta por desistência. Dele.', [['sanity', -20], ['curse']]],
+    ['Foi assaltado e o ladrão ficou com tanta pena que te deu dinheiro.', [['money', 40], ['sanity', -10]]],
+    ['Fingiu a própria morte pra fugir do agiota. Foi pego no próprio velório comendo coxinha.', [['sogra']]],
+    ['Vendeu a cadeira de rodas do avô pra pagar o aluguel. Ele levantou de raiva.', [['money', 150], ['sanity', -15]]],
+    ['A clínica de estética era do cunhado. Saiu com um olho mais alto que o outro.', [['money', -150], ['sanity', -20]]],
+    ['Seu filho pediu pra mudar de sobrenome.', [['sanity', -25]]],
+    ['Recebeu o seguro do incêndio que você mesmo começou. Ninguém provou nada.', [['money', 260], ['sanity', -10]]],
+    ['Foi no enterro errado e chorou tão bem que ganhou parte da herança.', [['money', 220]]],
+    ['O médico disse "não é nada". Era alguma coisa. Pague a cirurgia.', [['money', -230], ['sanity', -15]]],
+    ['O cartório perdeu sua certidão de nascimento. Legalmente você não existe, mas a dívida existe.', [['money', -150]]],
+    ['Caiu na pirâmide financeira da sua própria mãe.', [['money', -180], ['sanity', -20]]],
+    ['Seu sócio fugiu com o dinheiro e com sua mulher. Mandou foto da praia.', [['money', -200], ['sanity', -30]]],
+    ['O velho rico que você cuidava morreu e deixou tudo pro gato. Você ficou com o gato. E com a ração.', [['sanity', 15], ['money', -60]]],
+    ['Cobrou no velório a conta de bar do defunto. A viúva pagou pra você ir embora.', [['money', 120], ['sanity', -10]]],
+    ['O horóscopo disse "dia de sorte". Foi atropelado por um carro-forte. Indenização!', [['money', 200], ['sanity', -15]]],
+    ['A funerária errou e gravou seu nome na lápide da sua avó. Pelo menos já está pago.', [['sanity', -25]]],
+    ['O plano de saúde negou sua cirurgia porque você "ainda respira".', [['money', -150], ['sanity', -15]]],
+    ['A sogra se mudou pra sua casa "só por uma semana". Em 2019.', [['sogra']]],
+    ['Seu pai te tirou do testamento e colocou o personal trainer dele.', [['sanity', -30]]],
+    ['O coveiro é seu primo e te arrumou um terreno no cemitério. Mais barato que aluguel.', [['money', 100], ['sanity', -10]]],
+    ['Teve uma crise existencial no caixa do mercado. A fila pagou suas compras pra você parar de chorar.', [['fromEach', 25]]],
+    ['Os amigos fizeram um velório surpresa pra você. Você tava vivo, mas a coroa de flores era linda.', [['sanity', -15], ['fromEach', 20]]],
+    ['Pegou consignado na aposentadoria da sua avó. Ela ainda não sabe.', [['money', 250], ['sanity', -20]]],
+    ['A UTI pediu o leito de volta e seu avô voltou pra sua casa. Junto com a conta.', [['money', -200]]],
+    ['O vidente previu sua morte pra terça. Você passou a terça trancado e foi demitido.', [['money', -150], ['sanity', -15]]],
+    ['Fez rifa pra um tratamento que você nem precisa. Arrecadou bem.', [['money', 200], ['sanity', -15]]],
+    ['Seu chefe morreu no expediente. Você herdou a vaga, o trabalho e a cadeira ainda quente.', [['money', 150], ['sanity', -20]]],
+    ['Viralizou chorando no velório da tia. Virou figurinha e perdeu o emprego.', [['money', -120], ['sanity', -20]]],
+    ['Achou dinheiro no bolso do terno do tio antes de fecharem o caixão. Ninguém viu. Deus viu.', [['money', 180], ['sanity', -15]]],
+    ['Seu cardiologista também infartou. Você pagou as duas consultas.', [['money', -140]]],
+    ['O banco te ofereceu crédito pré-aprovado. Pré-aprovado pra te destruir.', [['money', 150], ['sanity', -25]]],
+    ['Descobriu que a herança da família era uma dívida de pensão do bisavô.', [['payEach', 35]]],
+    ['A ambulância passou direto. Você foi de Uber pro hospital e ainda deu 5 estrelas.', [['money', -90], ['sanity', -10]]],
+    ['Pediu demissão gritando e o chefe agradeceu. Ia te demitir sem direitos.', [['money', -100], ['sanity', 20]]],
+    ['A prefeitura achou um cano estourado embaixo de um imóvel seu. Escolha qual fica EM OBRAS por 2 rodadas: sem aluguel, e quem cair lá volta 3 casas.', [['obra']]],
+    ['O fiscal pediu propina e você não pagou. Escolha um imóvel seu pra ficar INTERDITADO por 2 rodadas.', [['obra']]],
+    ['Seu cunhado é mestre de obras e aceitou fiado. Escolha um imóvel seu: fica 2 rodadas EM OBRAS e depois ganha 1 andar de graça.', [['reforma']]],
+    ['Ganhou uma reforma no programa de TV de domingo, em troca de chorar ao vivo. Escolha um imóvel seu: 2 rodadas em obras e depois +1 andar.', [['reforma']]]
   ];
 
   var PERSONAL = {
@@ -1555,6 +1623,7 @@ var BL = (function () {
   }
   function rentOf(S, t) {
     if (t.owner < 0) return 0;
+    if (t.obra != null && t.obra >= S.round) return 0;
     var r;
     if (t.type === 'vice') {
       var cnt = S.tiles.filter(function (x) { return x.type === 'vice' && x.owner === t.owner; }).length;
@@ -1573,31 +1642,11 @@ var BL = (function () {
 
   // ---------- deck ----------
   function mkCard(text, ops, about) {
-    var good = ops.every(function (o) { return (o[0] === 'money' || o[0] === 'sanity') ? o[1] > 0 : (o[0] === 'fromEach' || o[0] === 'curse' || o[0] === 'takeover'); });
+    var good = ops.every(function (o) { return (o[0] === 'money' || o[0] === 'sanity') ? o[1] > 0 : (o[0] === 'fromEach' || o[0] === 'curse' || o[0] === 'takeover' || o[0] === 'reforma'); });
     return { id: uid(), text: text, ops: ops, about: about == null ? null : about, good: good };
   }
   function buildDeck(S) {
     var deck = BASE_CARDS.map(function (c) { return mkCard(c[0], c[1], null); });
-    var personal = [];
-    S.podres.forEach(function (pd) {
-      var subj = -1;
-      S.players.forEach(function (p, i) { if (norm(p.name) === norm(pd.about)) subj = i; });
-      if (subj < 0) return;
-      var name = S.players[subj].name;
-      if (pd.tag === 'livre') {
-        personal.push(mkCard(pd.text, pick(FREE_EFFECTS), subj));
-      } else {
-        var tpls = shuffle((PERSONAL[pd.tag] || []).slice()).slice(0, 2);
-        tpls.forEach(function (tp) { personal.push(mkCard(tp[0].replace(/\{n\}/g, name).replace(/\{v\}/g, pd.text), tp[1], subj)); });
-      }
-    });
-    if (S.ai && S.ai.cards) S.ai.cards.forEach(function (c) {
-      var subj = -1;
-      S.players.forEach(function (p, i) { if (norm(p.name) === norm(c.about)) subj = i; });
-      if (c.text && c.ops && c.ops.length) personal.push(mkCard(str(c.text, 200), c.ops, subj < 0 ? null : subj));
-    });
-    // personal cards appear twice so they show up more
-    deck = deck.concat(personal, personal.map(function (c) { return mkCard(c.text, c.ops, c.about); }));
     return shuffle(deck);
   }
 
@@ -1681,7 +1730,8 @@ var BL = (function () {
     timer: { n: 'Pare no 3 segundos', d: 'Pare o cronômetro o mais perto possível de 3,00 s. O número some no meio.', ms: 7000 },
     rps: { n: 'Pedra, papel e tesoura', d: 'Escolha antes do tempo acabar.', ms: 7000 },
     reflex: { n: 'Reflexo', d: 'Espere ficar verde e clique. Se clicar antes, perde.', ms: 6500 },
-    dados: { n: 'Duelo de dados', d: 'Cada um rola um dado. Maior número vence.', ms: 8000 }
+    dados: { n: 'Duelo de dados', d: 'Cada um rola um dado. Maior número vence.', ms: 8000 },
+    penalti: { n: 'Pênalti', d: 'Um bate, o outro defende. Cada um escolhe um canto. Mesmo canto: defendeu. Canto diferente: gol.', ms: 7000 }
   };
   var DUEL_STAKE = 120;
   function maybeDuel(S, p) {
@@ -1690,7 +1740,7 @@ var BL = (function () {
     if (others.length) S.duelPending = { a: p.i, b: pick(others).i };
   }
   function startDuel(S, a, b, now) {
-    var games = S.local ? ['dados'] : ['click', 'timer', 'rps', 'reflex', 'dados'];
+    var games = S.local ? ['dados'] : ['click', 'timer', 'rps', 'reflex', 'dados', 'penalti', 'penalti'];
     var g = pick(games);
     var D = { id: uid(), a: a, b: b, game: g, n: DUELS[g].n, d: DUELS[g].d, res: {}, stake: DUEL_STAKE };
     S.duel = D;
@@ -1699,6 +1749,7 @@ var BL = (function () {
     D.startsAt = Math.max(now, S.busyUntil || 0) + 3200;
     D.endsAt = D.startsAt + DUELS[g].ms + 1500;
     if (g === 'reflex') D.greenAt = D.startsAt + 1500 + rnd(2500);
+    if (g === 'penalti') D.d = S.players[a].name + ' bate, ' + S.players[b].name + ' defende. Mesmo canto: defendeu. Canto diferente: gol.';
   }
   function duelInput(S, p, v, now) {
     var D = S.duel; if (!D || (p.i !== D.a && p.i !== D.b) || D.res[p.i] != null) return false;
@@ -1708,6 +1759,7 @@ var BL = (function () {
     else if (D.game === 'rps') { if (['pedra', 'papel', 'tesoura'].indexOf(v) < 0) return false; D.res[p.i] = v; }
     else if (D.game === 'reflex') D.res[p.i] = Math.round(Number(v));
     else if (D.game === 'dados') D.res[p.i] = 1 + rnd(6);
+    else if (D.game === 'penalti') { if (['esq', 'meio', 'dir'].indexOf(v) < 0) return false; D.res[p.i] = v; }
     if (D.res[D.a] != null && D.res[D.b] != null) closeDuel(S, now);
     return true;
   }
@@ -1726,6 +1778,7 @@ var BL = (function () {
       return ra === rb ? -1 : ra < rb ? D.a : D.b;
     }
     if (g === 'dados') { A = A || 0; B = B || 0; return A === B ? -1 : A > B ? D.a : D.b; }
+    if (g === 'penalti') { if (A == null && B == null) return -1; if (A == null) return D.b; if (B == null) return D.a; return A === B ? D.b : D.a; }
     return -1;
   }
   function duelShow(D, i) {
@@ -1735,6 +1788,7 @@ var BL = (function () {
     if (D.game === 'rps') return v || 'não escolheu';
     if (D.game === 'reflex') return v == null ? 'dormiu' : v < 0 ? 'queimou a largada' : v + ' ms';
     if (D.game === 'dados') return v == null ? 'não rolou' : 'tirou ' + v;
+    if (D.game === 'penalti') { var cn = { esq: 'na esquerda', meio: 'no meio', dir: 'na direita' }; return v == null ? 'travou' : (i === D.a ? 'bateu ' : 'pulou ') + cn[v]; }
     return '';
   }
   function closeDuel(S, now) {
@@ -1770,10 +1824,72 @@ var BL = (function () {
       else if (D.game === 'timer') v = 3000 + rnd(900) - 450;
       else if (D.game === 'rps') v = pick(['pedra', 'papel', 'tesoura']);
       else if (D.game === 'reflex') v = 230 + rnd(260);
+      else if (D.game === 'penalti') v = pick(['esq', 'meio', 'dir']);
       else v = 1;
       duelInput(S, p, v, now); ch = true;
     });
     return ch;
+  }
+
+
+  // ---------- obras ----------
+  var OBRA_ROUNDS = 2;
+  function obraActive(S, t) { return t.obra != null && t.obra >= S.round; }
+  function obraOptions(S, p, mode) {
+    return S.tiles.filter(function (t) { return t.owner === p.i && !obraActive(S, t) && (mode === 'obra' ? (t.type === 'prop' || t.type === 'vice') : (t.type === 'prop' && t.level < 4)); });
+  }
+  function startObra(S, p, t, mode, now) {
+    t.obra = S.round + OBRA_ROUNDS - 1; t.obraUp = mode === 'reforma';
+    if (S.fofocaTile === t.i) S.fofocaTile = -1;
+    fx(S, 'stamp', { tile: t.i, text: 'Em obras' });
+    log(S, '🚧 ' + t.name + ' de ' + p.name + ' entrou em obras por ' + OBRA_ROUNDS + ' rodadas. Sem aluguel, e quem cair lá volta 3 casas.' + (t.obraUp ? ' No fim ganha 1 andar.' : ''), t.obraUp ? 'good' : 'bad');
+  }
+  function obraRoundEnd(S) {
+    S.tiles.forEach(function (t) {
+      if (t.obra == null || t.obra >= S.round) return;
+      var up = t.obraUp; t.obra = null; t.obraUp = false;
+      if (up && t.owner >= 0 && t.type === 'prop' && t.level < 4) { t.level++; log(S, '🏗️ A reforma de ' + t.name + ' terminou: subiu pro nível ' + t.level + '.', 'good'); fx(S, 'stamp', { tile: t.i, text: 'Reformado' }); }
+      else log(S, '🚧 Acabou a obra de ' + t.name + '. Voltou a cobrar aluguel.');
+    });
+  }
+  function botObra(S, p, P) {
+    var o = obraOptions(S, p, P.mode);
+    if (!o.length) return { type: 'choose_tile', tile: -1 };
+    o.sort(function (a, b) { return P.mode === 'obra' ? rentOf(S, a) - rentOf(S, b) : b.level - a.level || b.price - a.price; });
+    return { type: 'choose_tile', tile: o[0].i };
+  }
+
+  // ---------- promoção relâmpago no outdoor ----------
+  function maybeFlash(S, now) {
+    if (S.flash || S.round < 2 || (S.flashRound && S.round - S.flashRound < 3) || rnd(100) >= 10) return;
+    S.flashRound = S.round;
+    var golpe = rnd(100) < 25, amt = [80, 100, 120, 150][rnd(4)];
+    S.flash = { id: uid(), golpe: golpe, amt: amt, at: Math.max(now, S.busyUntil || 0) + 1500, winner: -1 };
+    S.flash.until = S.flash.at + 9000;
+    S.flash.botAt = S.flash.at + 1400 + rnd(2600);
+  }
+  function claimFlash(S, p, now) {
+    var F = S.flash; if (!F || F.winner >= 0 || p.ghost || now < F.at - 200 || now > F.until) return false;
+    F.winner = p.i; F.doneAt = now;
+    if (F.golpe) {
+      log(S, '🪤 ERA GOLPE! ' + p.name + ' clicou primeiro no Pix grátis do outdoor e teve ' + money(F.amt) + ' sacado da conta. Ganância é foda.', 'bad');
+      pay(S, p, F.amt, null, now); changeSanity(S, p, -10, now);
+    } else {
+      log(S, '⚡ ' + p.name + ' foi o mais rápido e pegou a promoção relâmpago do outdoor: +' + money(F.amt) + '.', 'good');
+      p.money += F.amt;
+    }
+    return true;
+  }
+  function flashTick(S, now) {
+    var F = S.flash; if (!F) return false;
+    if (F.winner >= 0) { if (now > F.doneAt + 3500) { S.flash = null; return true; } return false; }
+    if (now > F.until) { log(S, '⚡ Ninguém clicou na promoção do outdoor. O bairro tá desconfiado.'); S.flash = null; return true; }
+    if (now >= F.botAt) {
+      var bots = alive(S).filter(function (q) { return q.bot; });
+      if (bots.length && rnd(100) < (F.golpe ? 50 : 85)) return claimFlash(S, pick(bots), now);
+      F.botAt = now + 3000;
+    }
+    return false;
   }
 
   // ---------- casas especiais (vícios) ----------
@@ -2101,6 +2217,7 @@ var BL = (function () {
 
   function beginTurn(S, now) {
     var p = cur(S);
+    maybeFlash(S, now);
     p.cursedThisTurn = false; S.doubles = 0;
     if (p.ghost) { setPending(S, 'ghost', {}, now); return; }
     if (p.jail > 0) { setPending(S, 'jail', {}, now); return; }
@@ -2113,7 +2230,7 @@ var BL = (function () {
     var n = S.players.length;
     for (var k = 0; k < n * 3; k++) {
       S.turn = (S.turn + 1) % n;
-      if (S.turn === 0) { S.round++; if (S.round % 3 === 0) startNews(S, now); if (S.round % 3 === 2) S.duelDue = true; if (S.round % 7 === 0) S.auctionDue = true; }
+      if (S.turn === 0) { S.round++; obraRoundEnd(S); if (S.round % 3 === 0) startNews(S, now); if (S.round % 3 === 2) S.duelDue = true; if (S.round % 7 === 0) S.auctionDue = true; }
       var p = cur(S);
       if (!p.ghost && p.skip > 0) { p.skip--; log(S, p.name + ' perdeu a vez (ainda se recuperando).'); continue; }
       p.tradesThisTurn = 0;
@@ -2370,6 +2487,11 @@ var BL = (function () {
           var canBuild = t.type === 'prop' && t.level < 4 && groupComplete(S, t.g, p.i);
           setPending(S, 'own', { tile: t.i, canBuild: canBuild }, now); return;
         }
+        if (obraActive(S, t)) {
+          log(S, '🚧 ' + p.name + ' caiu em ' + t.name + ', que está EM OBRAS. Tropeçou no cone e voltou 3 casas.', 'bad');
+          fx(S, 'stamp', { p: p.i, text: 'Cone' });
+          moveBy(S, p, -3, now); return;
+        }
         var owner = S.players[t.owner];
         var r = rentOf(S, t);
         if (t.type === 'vice' && !owner.ghost && landVice(S, p, t, owner, r, now)) return;
@@ -2493,6 +2615,8 @@ var BL = (function () {
         case 'move': return target.name + ' anda ' + o[1] + ' casas';
         case 'curse': return target.name + ' ganha uma maldição';
         case 'downgrade': return 'uma construção de ' + target.name + ' desce de nível';
+        case 'obra': return target.name + ' escolhe um imóvel pra ficar em obras';
+        case 'reforma': return target.name + ' escolhe um imóvel pra reformar';
       }
       return '';
     }).join(', ');
@@ -2524,6 +2648,12 @@ var BL = (function () {
           log(S, '📜 ' + target.name + ' guardou uma Ordem de Despejo (tem ' + target.powers + '). Dá pra usar na vez dele, antes de rolar.', 'good');
           break;
         case 'downgrade': downgradeBest(S, target); break;
+        case 'obra': case 'reforma':
+          var opts = obraOptions(S, target, o[0]);
+          if (!opts.length) { log(S, target.name + ' não tem imóvel pra ' + (o[0] === 'obra' ? 'interditar. A pobreza protege de novo.' : 'reformar. Ficou só com a vontade.')); break; }
+          if (target !== drawer) break;
+          setPending(S, 'obra', { mode: o[0] }, now);
+          return;
       }
     }
   }
@@ -2847,6 +2977,7 @@ var BL = (function () {
       if (Object.keys(S.tribunal.votes).length >= voters) closeTribunal(S, now);
       return true;
     }
+    if (it.type === 'flash') return claimFlash(S, me, now);
     if (it.type === 'truco_play') { if (P.kind !== 'truco') return false; return trucoPlay(S, me, it.idx, now); }
     if (it.type === 'truco_ask') { if (P.kind !== 'truco') return false; return trucoAsk(S, me, now); }
     if (it.type === 'truco_ans') { if (P.kind !== 'truco') return false; return trucoAnswer(S, me, it.ans, now); }
@@ -2952,6 +3083,14 @@ var BL = (function () {
           changeSanity(S, victim, -20, now);
         } else if (it.type !== 'pass') return false;
         S.pending = { kind: 'resolve' }; afterResolve(S, now); return true;
+      case 'obra':
+        if (it.type !== 'choose_tile') return false;
+        var oo = obraOptions(S, p, P.mode);
+        t = S.tiles[Number(it.tile)];
+        if (!oo.length) { S.pending = { kind: 'resolve' }; afterResolve(S, now); return true; }
+        if (!t || oo.indexOf(t) < 0) return false;
+        startObra(S, p, t, P.mode, now);
+        S.pending = { kind: 'resolve' }; afterResolve(S, now); return true;
       case 'fofoca':
         if (it.type !== 'choose_tile') return false;
         t = S.tiles[Number(it.tile)];
@@ -3007,6 +3146,7 @@ var BL = (function () {
       case 'uber': var c; do { c = rnd(40); } while (c === 30); return { type: 'choose_tile', tile: c };
       case 'ghost': return { type: 'ghost', action: 'nothing' };
       case 'slot': return { type: 'pull' };
+      case 'obra': return botObra(S, p, P);
       case 'motel': return { type: 'suite', idx: 0 };
       case 'bar': return { type: 'bar_skip' };
     }
@@ -3029,6 +3169,7 @@ var BL = (function () {
       case 'sell': return { type: 'sell_auto' };
       case 'trade': return botTrade(S, p);
       case 'slot': return { type: 'pull' };
+      case 'obra': return botObra(S, p, P);
       case 'motel': return botMotel(S, p, P);
       case 'bar': return botBar(S, p);
       case 'takeover': return p.money - P.price > 400 && rnd(3) > 0 ? { type: 'takeover' } : { type: 'pass' };
@@ -3054,7 +3195,7 @@ var BL = (function () {
     if (S.phase !== 'game') return false;
     S._now = now;
     var P = S.pending; if (!P) return false;
-    var changed = false;
+    var changed = flashTick(S, now);
     if (S.endsAt && now >= S.endsAt && P.kind !== 'tribunal' && P.kind !== 'auction' && P.kind !== 'duel' && P.kind !== 'truco' && P.kind !== 'bingo' && !(P.kind === 'slot' && P.spin) && now >= (S.busyUntil || 0)) {
       var best = alive(S).slice().sort(function (a, b) { return patrimony(S, b) - patrimony(S, a); })[0];
       finish(S, best, 'time', now); return true;
@@ -3079,9 +3220,9 @@ var BL = (function () {
       if (now >= A.endsAt) { closeAuction(S, now); return true; }
       return changed;
     }
-    if (P.kind === 'slot' && P.spin) { if (now >= P.spin.until) { slotSettle(S, now); return true; } return false; }
-    if (P.kind === 'bingo' && S.bingo) { if (now >= S.bingo.until) { bingoSettle(S, now); return true; } return false; }
-    if (P.kind === 'truco' && S.truco) return trucoTick(S, now);
+    if (P.kind === 'slot' && P.spin) { if (now >= P.spin.until) { slotSettle(S, now); return true; } return changed; }
+    if (P.kind === 'bingo' && S.bingo) { if (now >= S.bingo.until) { bingoSettle(S, now); return true; } return changed; }
+    if (P.kind === 'truco' && S.truco) return trucoTick(S, now) || changed;
     if (P.kind === 'duel' && S.duel) {
       changed = botDuel(S, now) || changed;
       if (S.duel && now >= S.duel.endsAt) { closeDuel(S, now); return true; }
@@ -3791,7 +3932,7 @@ function buildHome(){
   '<main class="home">' +
     '<section><div class="logo"><span class="l1">Bad</span><span class="l2">Landlords</span><div class="stamp">Sem freio</div></div>' +
     '<div class="pitch"><p><b>Compre a rua da ex do seu amigo</b>, cobre aluguel abusivo e tome a casa dele pagando o dobro.</p>' +
-    '<p>As cartas são feitas com os podres do grupo. Tem Tribunal pra decidir quem é o trouxa, e quem falir vira fantasma pra assombrar os outros.</p>' +
+    '<p>Os podres do grupo viram pichação no muro e fofoca no bairro. Tem Tribunal pra decidir quem é o trouxa, e quem falir vira fantasma pra assombrar os outros.</p>' +
     '<p>De 2 a 6 jogadores, partidas de 10 a 60 minutos.</p></div></section>' +
     '<section class="panel">' + CLIP + '<div class="hd">Bora destruir amizades</div><div class="bd">' +
       '<label for="nameIn">Seu nome</label><input id="nameIn" maxlength="20" placeholder="Lorenzo" value="' + esc(myName) + '">' +
@@ -3838,7 +3979,7 @@ function buildLobby(){
         '<p class="muted" style="margin:4px 0 0">Se ninguém preencher, o jogo inventa com a cara da sua cidade.</p>' +
         '<label>Sua peça</label><div class="pieces" id="pieces"></div>' +
         '<div style="margin-top:18px;border-top:3px dashed rgba(0,0,0,.25);padding-top:12px"><h3>Jogar podres no ventilador</h3>' +
-        '<p class="muted" style="margin:0 0 4px">Viram cartas com o nome da pessoa. Qualquer um pode contar o podre de qualquer um.</p>' +
+        '<p class="muted" style="margin:0 0 4px">Viram pichação, fofoca no bairro e cartaz de procurado. Qualquer um pode contar o podre de qualquer um.</p>' +
         '<div class="row"><div style="flex:1;min-width:120px"><label for="pAbout">Sobre quem</label><select id="pAbout"></select></div>' +
         '<div style="flex:1;min-width:120px"><label for="pTag">Tipo</label><select id="pTag">' + Object.keys(TAGS).map(function(k){ return '<option value="' + k + '">' + TAGS[k] + '</option>'; }).join('') + '</select></div></div>' +
         '<label for="pText">O podre</label><input id="pText" maxlength="160" placeholder="' + esc(TAG_PH.vicio) + '">' +
@@ -3930,7 +4071,7 @@ function updateLobby(){
   var mineS = mySeat();
   $('#startBox').innerHTML = host
     ? '<button class="big go" data-act="start" style="width:100%"' + (n < 2 || waiting.length ? ' disabled' : '') + '>Começar</button><p class="muted" style="margin:6px 0 0">' +
-      (n < 2 ? 'Precisa de pelo menos 2 jogadores. Dá pra completar com bots.' : waiting.length ? 'Esperando ficar pronto: ' + esc(waiting.map(function(s){ return s.name; }).join(', ')) + '.' : 'Todo mundo pronto. ' + n + ' jogadores, ' + V.podres.length + ' podres no baralho.') + '</p>'
+      (n < 2 ? 'Precisa de pelo menos 2 jogadores. Dá pra completar com bots.' : waiting.length ? 'Esperando ficar pronto: ' + esc(waiting.map(function(s){ return s.name; }).join(', ')) + '.' : 'Todo mundo pronto. ' + n + ' jogadores, ' + V.podres.length + ' podres no muro.') + '</p>'
     : (mineS && mineS.ready
         ? '<button class="big yellow" data-act="ready" data-on="0" style="width:100%">Pronto! (clique pra mudar)</button><p class="muted" style="margin:6px 0 0">Esperando o dono da sala começar. Dá pra continuar espalhando podres.</p>'
         : '<button class="big go" data-act="ready" data-on="1" style="width:100%">Estou pronto</button><p class="muted" style="margin:6px 0 0">Preencha sua ficha e espalhe uns podres. Quando terminar, clique em pronto.</p>');
@@ -4200,7 +4341,7 @@ function updateGame(){
   var M = me();
   var myTurn = M && V.pending && V.pending.p === M.i && V.turn === M.i;
   if (choose && !(myTurn && V.pending && (V.pending.kind === choose || (V.pending.kind === 'ghost' && (choose === 'buff' || choose === 'debuff'))))) choose = null;
-  if (!choose && myTurn && V.pending && (V.pending.kind === 'fofoca' || V.pending.kind === 'uber')) choose = V.pending.kind;
+  if (!choose && myTurn && V.pending && (V.pending.kind === 'fofoca' || V.pending.kind === 'uber' || V.pending.kind === 'obra')) choose = V.pending.kind;
   // tiles
   V.tiles.forEach(function(t){
     var el = $('#tile-' + t.i); if (!el) return;
@@ -4435,7 +4576,7 @@ function renderInspect(V){
     if (ow && t.level < 4) h += '<div>Tomada hostil custa ' + bb(2 * BL.tileValue(t)) + '</div>';
     if (t.mod) h += '<div>👻 ' + (t.mod > 0 ? 'Abençoada por um fantasma: aluguel x1,5' : 'Amaldiçoada: aluguel pela metade') + '</div>';
   } else {
-    var D = { start: 'Passou: recebe B$200. Caiu em cima: B$300. Às vezes vem uma maldição de brinde.', jail: 'Quem é mandado pra cá fica até 3 vezes. Tire dados iguais ou pague B$100.', fofoca: 'Escolha uma casa sua: o aluguel dela dobra.', uber: 'Vá pra qualquer casa do tabuleiro por B$50.', chance: 'Tire uma carta. Algumas foram feitas com os podres do grupo.', curse: 'Ganhe uma maldição pra jogar em alguém antes de rolar os dados.', tribunal: 'Todo mundo vota. O mais votado paga B$150 e perde 15 de sanidade.', tax: 'Pague ' + bb(t.amount || 0) + '.' };
+    var D = { start: 'Passou: recebe B$200. Caiu em cima: B$300. Às vezes vem uma maldição de brinde.', jail: 'Quem é mandado pra cá fica até 3 vezes. Tire dados iguais ou pague B$100.', fofoca: 'Escolha uma casa sua: o aluguel dela dobra.', uber: 'Vá pra qualquer casa do tabuleiro por B$50.', chance: 'Tire uma carta de Sorte ou Revés. Humor sem freio.', curse: 'Ganhe uma maldição pra jogar em alguém antes de rolar os dados.', tribunal: 'Todo mundo vota. O mais votado paga B$150 e perde 15 de sanidade.', tax: 'Pague ' + bb(t.amount || 0) + '.' };
     h += '<div>' + (D[t.type] || '') + '</div>';
   }
   el.innerHTML = h;
@@ -5099,7 +5240,7 @@ function updateGame(){
   var M = me();
   var myTurn = M && V.pending && V.pending.p === M.i && V.turn === M.i;
   if (choose && !(myTurn && V.pending && (V.pending.kind === choose || (V.pending.kind === 'ghost' && (choose === 'buff' || choose === 'debuff'))))) choose = null;
-  if (!choose && myTurn && V.pending && (V.pending.kind === 'fofoca' || V.pending.kind === 'uber')) choose = V.pending.kind;
+  if (!choose && myTurn && V.pending && (V.pending.kind === 'fofoca' || V.pending.kind === 'uber' || V.pending.kind === 'obra')) choose = V.pending.kind;
   V.tiles.forEach(function(t){
     var el = $('#tile-' + t.i); if (!el) return;
     var key = JSON.stringify([t.owner, t.level, t.mod, V.fofocaTile === t.i, t.owner >= 0 ? BL.rentOf(V, t) : 0, t.name]);
@@ -5223,6 +5364,7 @@ function renderAction0(V){
         h = acCard('🏴‍☠️ Tomada hostil?', 'Tomar <b>' + esc(t.name) + '</b> do ' + esc(ow.name) + ' pagando o dobro. Ele perde 20 de sanidade.', '<button class="bad" data-act="takeover">Tomar por ' + bb(P.price) + '</button><button data-act="pass">Deixar quieto</button>');
         break;
       case 'fofoca': h = acCard('🔥 Fofoca da semana', 'Toque numa casa sua no tabuleiro. O aluguel dela dobra.', ''); break;
+      case 'obra': h = acCard(P.mode === 'reforma' ? '🏗️ Reforma' : '🚧 Obra da prefeitura', P.mode === 'reforma' ? 'Toque num imóvel seu (com cor). Fica 2 rodadas em obras e depois ganha 1 andar de graça.' : 'Toque num imóvel seu. Fica 2 rodadas em obras: não cobra aluguel e quem cair lá volta 3 casas.', ''); break;
       case 'uber': h = acCard('🚗 Uber bêbado', 'Toque em qualquer casa do tabuleiro. A corrida custa ' + bb(BL.UBER_FARE) + '.', ''); break;
       case 'ghost':
         if (ghostSel === 'haunt' || ghostSel === 'toll') h = acCard('👻 Escolha a vítima', 'Clique em alguém na barra de jogadores lá em cima.', '<button data-act="ghostCancel">Cancelar</button>');
@@ -5265,7 +5407,7 @@ function renderInspect(V){
     if (ow && t.level < 4) h += '<div class="irow"><span>Tomada hostil</span><b>' + bb(2 * BL.tileValue(t)) + '</b></div>';
     if (t.mod) h += '<div class="irow"><span>Fantasma</span><b>' + (t.mod > 0 ? 'aluguel x1,5' : 'aluguel pela metade') + '</b></div>';
   } else {
-    var D = { start: 'Passou: recebe B$200. Caiu em cima: B$300.', jail: 'Fica até 3 vezes. Tire dados iguais ou pague B$100.', fofoca: 'Escolha uma casa sua: o aluguel dela dobra.', uber: 'Vá pra qualquer casa por B$50.', chance: 'Tire uma carta. Algumas foram feitas com os podres do grupo.', curse: 'Ganhe uma maldição pra jogar em alguém.', tribunal: 'Todo mundo vota. O mais votado paga B$150 e perde 15 de sanidade.', tax: 'Pague ' + bb(t.amount || 0) + '.' };
+    var D = { start: 'Passou: recebe B$200. Caiu em cima: B$300.', jail: 'Fica até 3 vezes. Tire dados iguais ou pague B$100.', fofoca: 'Escolha uma casa sua: o aluguel dela dobra.', uber: 'Vá pra qualquer casa por B$50.', chance: 'Tire uma carta de Sorte ou Revés. Humor sem freio.', curse: 'Ganhe uma maldição pra jogar em alguém.', tribunal: 'Todo mundo vota. O mais votado paga B$150 e perde 15 de sanidade.', tax: 'Pague ' + bb(t.amount || 0) + '.' };
     h += '<p class="acp">' + (D[t.type] || '') + '</p>';
   }
   el.innerHTML = h; el.classList.remove('hidden');
@@ -5405,6 +5547,7 @@ setInterval(function(){
     stage = 'timer';
     h = '<div class="dclock" id="dclock"></div><button class="dbig" data-act="dstop">PARAR</button>';
   }
+  else if (D.game === 'penalti'){ stage = 'pen'; var kick = M && M.i === D.a; h = '<div class="dwatch" style="margin-bottom:6px">' + (kick ? '⚽ Você bate. Escolha o canto:' : '🧤 Você defende. Pule pra um canto:') + '</div><div class="acb">' + [['esq', '⬅️ Esquerda'], ['meio', '⬆️ Meio'], ['dir', '➡️ Direita']].map(function(o){ return '<button class="go big" data-act="duelv" data-v="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>'; }
   else if (D.game === 'rps'){ stage = 'rps'; h = '<div class="acb">' + [['pedra', '🪨'], ['papel', '📄'], ['tesoura', '✂️']].map(function(o){ return '<button class="go big" data-act="duelv" data-v="' + o[0] + '">' + o[1] + ' ' + o[0] + '</button>'; }).join('') + '</div>'; }
   else if (D.game === 'reflex'){
     var green = now >= D.greenAt;
@@ -5439,7 +5582,7 @@ var HELP = [
   ['🏚️', 'Bem-vindo ao Bad Landlords', 'O objetivo é falir os seus amigos. Você ganha se tiver os 4 lugares de perdição, 3 grupos de cor completos, um lado inteiro do tabuleiro, ou o maior patrimônio quando o tempo acabar.'],
   ['🎲', 'Sua vez', 'Role os dados e ande. Casa sem dono: compre ou passe. Passar pelo começo dá B$300. Casa de outro: pague aluguel. Tirou uma Ordem de Despejo no Sorte? Use na sua vez pra tomar o imóvel de alguém pagando o dobro.'],
   ['🧠', 'Sua casa e sua sanidade', 'Caiu na sua própria casa: se tiver todos os terrenos da cor, construa um andar (aluguel sobe); ou relaxe pra recuperar sanidade, ou só pule. Se a sanidade zerar, você surta, perde a vez e vende uma casa no desespero.'],
-  ['⚖️', 'Casas especiais', 'Sorte ou revés tem cartas feitas com os podres do grupo. Tribunal é votação. Maldição te dá uma carta pra jogar nos outros. Fofoca dobra um aluguel seu. Uber bêbado leva pra qualquer casa. Sogra é a prisão.'],
+  ['⚖️', 'Casas especiais', 'Sorte ou revés tem cartas de humor pesado, algumas mandam um imóvel seu pra obra. Tribunal é votação. Maldição te dá uma carta pra jogar nos outros. Fofoca dobra um aluguel seu. Uber bêbado leva pra qualquer casa. Sogra é a prisão.'],
   ['📰', 'Caos extra', 'A cada 3 rodadas sai um Plantão da semana e rola um Minigame da rodada entre dois jogadores. A cada 7 rodadas o banco faz um Leilão. Na sua vez, antes de rolar, dá pra Negociar imóveis e dinheiro com os outros. Caiu na mesma casa que alguém? Sempre rola um duelo relâmpago valendo dinheiro.'],
   ['👻', 'Fantasma e zoeira', 'Faliu? Vira fantasma e continua assombrando todo mundo. Use o botão Zoeira pra provocar com a sua peça e mandar reações. E toque nas coisas do bairro no meio do tabuleiro: janelas, mendigo, gato no lixo, pombo, bar, igreja, viatura… todo mundo vê o que você aprontar. A qualquer hora, toque no ? pra rever tudo.']
 ];
@@ -7411,6 +7554,80 @@ function drunkify(s){
   }).join(' ');
   return out + (Math.random() < 0.5 ? ' kkkkk' : ' 🍺') + (Math.random() < 0.3 ? ' te amo mano' : '');
 }
+
+// ---- v7.6: obras, promoção relâmpago, pênalti ----
+var _pkObra = pickable;
+pickable = function(V, t){
+  if (choose === 'obra'){
+    var M = me(), P = V.pending; if (!M || !P || t.owner !== M.i) return false;
+    if (t.obra != null && t.obra >= V.round) return false;
+    return P.mode === 'reforma' ? (t.type === 'prop' && t.level < 4) : (t.type === 'prop' || t.type === 'vice');
+  }
+  return _pkObra(V, t);
+};
+var _wtObra = waitingText;
+waitingText = function(V, P, p){
+  if (P.kind === 'obra') return p.name + ' está escolhendo qual imóvel vai pra ' + (P.mode === 'reforma' ? 'reforma.' : 'obra.');
+  return _wtObra(V, P, p);
+};
+var FL = { id: null, shown: null };
+function obraTiles(V){
+  V.tiles.forEach(function(t){
+    var el = $('#tile-' + t.i); if (!el) return;
+    var on = t.obra != null && t.obra >= V.round;
+    el.classList.toggle('obra', on);
+    var tag = el.querySelector('.obratag');
+    if (on && !tag){ tag = document.createElement('span'); tag.className = 'obratag'; tag.innerHTML = '<b>' + (t.obraUp ? 'REFORMA' : 'EM OBRAS') + '</b><i>🚧</i>'; el.appendChild(tag); }
+    if (!on && tag) tag.remove();
+  });
+}
+function flashUI(V){
+  var F = V.flash, bar = $('#flashbar'), now = hostNow(), M = me();
+  if (!F || V.phase !== 'game'){ if (bar) bar.remove(); var od0 = $('#outdoor'); if (od0) od0.classList.remove('flash'); return; }
+  if (!bar){ bar = document.createElement('div'); bar.id = 'flashbar'; document.body.appendChild(bar); }
+  var h, cls;
+  if (F.winner >= 0){
+    var w = V.players[F.winner];
+    cls = 'res' + (F.golpe ? ' golpe' : '');
+    h = '<span class="ft">' + (F.golpe ? '🪤 ERA GOLPE! ' + esc(w.name) + ' perdeu ' + bb(F.amt) : '⚡ ' + esc(w.name) + ' pegou ' + bb(F.amt) + '!') + '</span>';
+    if (FL.shown !== F.id + 'r'){ FL.shown = F.id + 'r'; sfx(F.golpe ? 'trombone' : 'cash'); }
+  } else if (now < F.at){
+    cls = 'on';
+    h = '<span class="ft">⚡ PROMOÇÃO RELÂMPAGO NO OUTDOOR</span><span class="cd">' + Math.ceil((F.at - now) / 1000) + '</span>';
+    if (FL.shown !== F.id){ FL.shown = F.id; sfx('alarm'); }
+  } else {
+    cls = 'on';
+    var txt = '<span class="ft">PIX GRÁTIS DE ' + bb(F.amt) + ' PRO PRIMEIRO QUE CLICAR</span>';
+    var who = N.mode === 'local' ? V.players.filter(function(p){ return !p.ghost; }) : (M && !M.ghost ? [M] : []);
+    h = txt + who.map(function(p){ return '<button data-act="flashClaim"' + (N.mode === 'local' ? ' data-as="' + p.i + '"' : '') + '>' + (N.mode === 'local' ? esc(p.name) + '!' : 'EU QUERO!') + '</button>'; }).join('');
+  }
+  var key = cls + h;
+  if (bar._k !== key){ bar._k = key; bar.className = cls; bar.innerHTML = h; }
+  var od = $('#outdoor'), ot = $('#odtxt');
+  if (od) od.classList.toggle('flash', F.winner < 0);
+  if (ot && F.winner < 0){ var m = 'PIX GRÁTIS DE ' + bb(F.amt) + '! CLIQUE JÁ! (CONFIA)'; if (ot.textContent !== m) ot.textContent = m; OUT.until = Date.now() + 3000; }
+}
+var _doActFl = doAct;
+doAct = function(a, d){
+  if (a === 'flashClaim'){ var it = { type: 'flash' }; if (d && d.as != null) it.as = Number(d.as); act(it); sfx('pop'); return; }
+  if (a === 'odNext'){ var V = view(); if (V && V.flash && V.flash.winner < 0 && hostNow() >= V.flash.at){ var M = me(); if (M && N.mode !== 'local'){ act({ type: 'flash' }); sfx('pop'); return; } } }
+  _doActFl(a, d);
+};
+setInterval(function(){ var V = view(); if (!V || !V.tiles || V.phase !== 'game') { var b = $('#flashbar'); if (b) b.remove(); return; } obraTiles(V); flashUI(V); }, 150);
+// outdoor fica sabendo das obras e dos golpes
+var _oeObra = outdoorEvents;
+outdoorEvents = function(V){
+  var out = _oeObra(V);
+  (V.log || []).forEach(function(l){
+    if (OUT.seen['o' + l.id]) return; OUT.seen['o' + l.id] = 1;
+    var t = l.text || '', m;
+    if ((m = t.match(/^🪤 ERA GOLPE! (.+?) clicou/))) out.push([m[1].toUpperCase() + ' CAIU NO GOLPE DO OUTDOOR. A GENTE AGRADECE O PIX', 1]);
+    else if ((m = t.match(/^🚧 (.+?) de (.+?) entrou em obras/))) out.push(['OBRA DA PREFEITURA EM ' + m[1].toUpperCase() + '. PREVISÃO DE ENTREGA: NUNCA', 0]);
+    else if ((m = t.match(/^🃏 (.+?) ganhou o truco/))) out.push([m[1].toUpperCase() + ' GANHOU NO TRUCO. O OUTRO TÁ CHORANDO NO BALCÃO', 1]);
+    else if ((m = t.match(/JACKPOT! (.+?) quebrou a banca do (.+?) e/))) out.push(['JACKPOT! ' + m[1].toUpperCase() + ' QUEBROU O CASSINO DO ' + m[2].toUpperCase(), 1]);
+  });
+  return out;
+};
 
 if (location.hash === '#debug') window.__bl = { N: N, BL: BL, refresh: function(){ N.view = BL.publicState(N.S); render(); }, x: function(f){ return eval(f); } };
 render();
