@@ -1099,6 +1099,119 @@ main.g2.withtable{background:#6B4426}
 @keyframes drip{to{stroke-dashoffset:-16}}
 .graf{font-size:34px}
 @media (prefers-reduced-motion:reduce){.pombo,.varal,.drv,.plane2,.neon,.neon2,.neon3,.drip,.v-viatura .lb,.v-viatura .lr,.drv .veh{animation:none!important}}
+/* ===== v7.5: casas especiais ===== */
+.actcard.modal.vx{width:min(640px,96vw)}
+.vxsub{font-size:15px;font-weight:700;text-align:center;opacity:.85;margin:2px 0 8px;line-height:1.3}
+.vxsub b{color:var(--ink)}
+.vxwho{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:16px}
+.vxwho .vav{width:34px;height:34px}
+/* slot */
+.slotm{position:relative;margin:6px auto 4px;width:min(420px,88vw);background:linear-gradient(#b3122e,#7a0a1f);border:5px solid var(--ink);border-radius:26px 26px 18px 18px;padding:14px 16px 16px;box-shadow:0 8px 0 rgba(43,39,48,.9),inset 0 0 0 4px #ffcf3f}
+.slotm .marq{font-family:'Luckiest Guy',cursive;color:#ffcf3f;text-align:center;font-size:24px;letter-spacing:1px;text-shadow:0 3px 0 #3a0610;line-height:1}
+.slotm .bulbs{display:flex;justify-content:space-between;margin:6px 4px 10px}
+.slotm .bulbs i{width:11px;height:11px;border-radius:50%;background:#ffe9a6;box-shadow:0 0 8px #ffcf3f;animation:bulb 0.6s steps(2) infinite}
+.slotm .bulbs i:nth-child(2n){animation-delay:.3s}
+@keyframes bulb{50%{background:#7a4a10;box-shadow:none}}
+.slotm.spin .bulbs i{animation-duration:.18s}
+.reels{display:flex;gap:10px;justify-content:center;background:#2b2730;border-radius:14px;padding:10px;border:4px solid #111}
+.reel{width:30%;height:96px;background:#fff8e6;border-radius:10px;overflow:hidden;position:relative;border:3px solid var(--ink);box-shadow:inset 0 10px 14px rgba(0,0,0,.35),inset 0 -10px 14px rgba(0,0,0,.35)}
+.reel .strip{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;align-items:center}
+.reel .strip span{height:96px;display:flex;align-items:center;justify-content:center;font-size:56px}
+.reel.run .strip{animation:reelrun .32s linear infinite}
+.reel.slow .strip{animation-duration:.75s}
+@keyframes reelrun{from{transform:translateY(0)}to{transform:translateY(-672px)}}
+.reel.stop .strip{animation:reelstop .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes reelstop{from{transform:translateY(-40px)}to{transform:translateY(0)}}
+.reel.hot{box-shadow:0 0 0 4px #ffcf3f,0 0 22px #ffcf3f}
+.slotinfo{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.slotinfo span{background:#fff;border:3px solid var(--ink);border-radius:12px;padding:4px 10px;font-weight:800;font-size:14px}
+.lever{position:absolute;right:-34px;top:40px;width:22px;height:120px}
+.lever:before{content:'';position:absolute;left:8px;top:20px;width:7px;height:96px;background:#bbb;border:2px solid var(--ink);border-radius:4px;transform-origin:bottom}
+.lever:after{content:'';position:absolute;left:-2px;top:2px;width:26px;height:26px;border-radius:50%;background:#e2263f;border:3px solid var(--ink)}
+.slotm.spin .lever{animation:lever .6s ease}
+@keyframes lever{40%{transform:scaleY(-1) translateY(-60px)}}
+.slotres{font-family:'Luckiest Guy',cursive;font-size:30px;text-align:center;margin-top:10px;min-height:36px;letter-spacing:1px}
+.slotres.win{color:#e2a400;text-shadow:0 3px 0 var(--ink);animation:jackpot .5s ease infinite alternate}
+.slotres.lose{color:#c0182f}
+@keyframes jackpot{to{transform:scale(1.12) rotate(-2deg)}}
+.pullbtn{font-family:'Luckiest Guy',cursive!important;font-size:24px!important;letter-spacing:1px;background:#ffcf3f!important}
+/* motel */
+.motelmenu{background:#2a1430;border:4px solid var(--ink);border-radius:18px;padding:12px;color:#fff;margin-top:6px}
+.motelmenu .mmt{font-family:'Gochi Hand',cursive;font-size:28px;text-align:center;color:#ff7ac8;text-shadow:0 0 10px #ff2e9a;line-height:1}
+.suites{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.suite{background:#3d1d45;border:3px solid #ff7ac8;border-radius:14px;padding:10px 8px;text-align:center;display:flex;flex-direction:column;gap:4px;color:#fff;font:inherit;cursor:pointer;min-height:0}
+.suite .si{font-size:34px;line-height:1}
+.suite b{font-size:16px;line-height:1.1}
+.suite small{font-size:12px;opacity:.85;line-height:1.2}
+.suite .sp{font-family:'Luckiest Guy',cursive;font-size:22px;color:#ffcf3f}
+.suite .ss{font-weight:800;font-size:14px;border-radius:8px;padding:2px 6px;background:#fff;color:var(--ink)}
+.suite .ss.neg{background:#ffb3b3}.suite .ss.pos{background:#b6f2c2}
+.suite[disabled]{opacity:.45;cursor:not-allowed}
+.suite:not([disabled]):hover{transform:translateY(-3px);box-shadow:0 0 16px #ff2e9a}
+.suite.pick{animation:jackpot .4s ease 2 alternate}
+@media(max-width:520px){.suites{grid-template-columns:1fr}.suite{flex-direction:row;align-items:center;text-align:left;flex-wrap:wrap}.suite .si{font-size:28px}}
+/* bingo */
+.bgball{display:flex;gap:8px;justify-content:center;min-height:58px;align-items:center;margin:6px 0 10px;flex-wrap:wrap}
+.bgball i{width:50px;height:50px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#ffcf3f 60%,#d99a00);border:3px solid var(--ink);display:flex;align-items:center;justify-content:center;font-style:normal;font-family:'Luckiest Guy',cursive;font-size:22px;animation:ballin .5s cubic-bezier(.2,1.6,.4,1)}
+.bgball i.empty{background:#eee;opacity:.35;animation:none}
+@keyframes ballin{from{transform:translateY(-60px) scale(.3) rotate(-200deg)}}
+.bgcards{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.bgcard{border:3px solid var(--ink);border-radius:12px;background:#fff;padding:6px;width:132px;box-shadow:0 4px 0 rgba(43,39,48,.8)}
+.bgcard.me{outline:4px solid var(--pc);}
+.bgcard .bgn{font-weight:800;font-size:13px;text-align:center;color:var(--pc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:4px}
+.bggrid span{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;border-radius:6px;background:#f4efe3;position:relative}
+.bggrid span.hit{background:var(--pc);color:#fff}
+.bggrid span.hit:after{content:'';position:absolute;inset:3px;border:3px solid rgba(255,255,255,.8);border-radius:50%}
+.bggrid span.line{background:#ffcf3f;color:var(--ink);animation:jackpot .4s ease infinite alternate}
+.bgcard.win{transform:scale(1.06);box-shadow:0 0 0 4px #ffcf3f,0 0 24px #ffcf3f}
+.bgres{font-family:'Luckiest Guy',cursive;font-size:26px;text-align:center;margin-top:10px;min-height:30px}
+/* bar + truco */
+.barpick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+.barpick button{display:flex;align-items:center;gap:6px;padding:6px 12px!important;min-height:0!important;border:3px solid var(--ink);border-radius:14px;background:#fff;font-weight:800}
+.barpick button.sel{background:var(--pc);color:#fff}
+.barpick .vav{width:30px;height:30px}
+.betrow{display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:10px}
+.betrow button{padding:6px 12px!important;min-height:0!important;font-size:15px!important}
+.betrow input{width:110px;font-size:20px;font-weight:800;text-align:center;border:3px solid var(--ink);border-radius:12px;padding:6px}
+.housecut{margin:10px auto 0;background:#fff3c4;border:3px dashed #b58a00;border-radius:12px;padding:6px 10px;font-weight:800;font-size:14px;text-align:center;max-width:460px}
+.felt{background:radial-gradient(ellipse at center,#2e8b57,#1d5e3a);border:5px solid #6b3f1d;border-radius:22px;padding:10px;color:#fff;margin-top:6px;box-shadow:inset 0 0 30px rgba(0,0,0,.4),0 6px 0 rgba(43,39,48,.9)}
+.trow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tpl{display:flex;align-items:center;gap:6px;font-weight:800}
+.tpl .vav{width:34px;height:34px}
+.tpl.turn b{background:#ffcf3f;color:var(--ink);border-radius:8px;padding:0 6px}
+.thand{display:flex;gap:6px;justify-content:center;min-height:84px;align-items:center;margin:6px 0}
+.tcard{width:56px;height:80px;border-radius:9px;background:#fff;border:3px solid var(--ink);color:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;line-height:1;box-shadow:0 4px 0 rgba(0,0,0,.35);position:relative;font-family:'Baloo 2',sans-serif}
+.tcard b{font-size:26px}.tcard i{font-style:normal;font-size:24px}
+.tcard.red{color:#d0122c}
+.tcard.man{box-shadow:0 0 0 3px #ffcf3f,0 0 14px #ffcf3f}
+.tcard.man:after{content:'★';position:absolute;top:2px;right:4px;font-size:12px;color:#e2a400}
+.tcard.back{background:repeating-linear-gradient(45deg,#c0182f 0 6px,#8e0f22 6px 12px);}
+.tcard.back b,.tcard.back i{display:none}
+button.tcard{cursor:pointer;padding:0;min-height:0}
+button.tcard:hover:not([disabled]){transform:translateY(-8px)}
+.tmid{display:flex;align-items:center;justify-content:center;gap:16px;min-height:96px}
+.tvira{display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:800;gap:3px;opacity:.95}
+.tvira .tcard{transform:rotate(-8deg) scale(.85)}
+.ttable{display:flex;gap:12px;min-width:140px;justify-content:center}
+.ttable .tcard{animation:cardin .3s cubic-bezier(.2,1.5,.4,1)}
+@keyframes cardin{from{transform:translateY(40px) rotate(20deg);opacity:0}}
+.tval{font-family:'Luckiest Guy',cursive;font-size:20px;text-align:center;color:#ffcf3f;text-shadow:0 2px 0 #000}
+.tvz{display:flex;gap:6px;justify-content:center;margin:4px 0}
+.tvz i{width:18px;height:18px;border-radius:50%;border:2px solid #fff;background:transparent}
+.tshout{font-family:'Luckiest Guy',cursive;font-size:40px;text-align:center;color:#ffcf3f;text-shadow:0 4px 0 #000;animation:jackpot .35s ease infinite alternate;margin:4px 0}
+.tbtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.tbtns button{min-height:44px!important;font-size:17px!important}
+.tbtns .truco{background:#ffcf3f;font-family:'Luckiest Guy',cursive;letter-spacing:1px;font-size:20px!important}
+.tlocal{font-size:13px;text-align:center;opacity:.9;font-weight:700}
+.tres{font-family:'Luckiest Guy',cursive;font-size:24px;text-align:center;margin-top:6px;color:#fff;text-shadow:0 3px 0 #000}
+.tclock{height:6px;background:rgba(255,255,255,.25);border-radius:4px;overflow:hidden;margin-top:6px}
+.tclock i{display:block;height:100%;background:#ffcf3f;width:100%}
+/* bêbado */
+body.drunk #stage{animation:drunk 4s ease-in-out infinite;filter:blur(.6px) saturate(1.2)}
+@keyframes drunk{0%,100%{transform:rotate(0) translateX(0)}25%{transform:rotate(1.4deg) translateX(8px)}75%{transform:rotate(-1.4deg) translateX(-8px)}}
+.drunkbadge{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:60;background:#ffcf3f;border:3px solid var(--ink);border-radius:14px;padding:4px 12px;font-weight:800;pointer-events:none}
+@media (prefers-reduced-motion:reduce){body.drunk #stage{animation:none}.reel.run .strip{animation-duration:1.2s}}
 </style>
 </head>
 <body>
@@ -1663,6 +1776,296 @@ var BL = (function () {
     return ch;
   }
 
+  // ---------- casas especiais (vícios) ----------
+  var SLOT_MS = 7600, SLOT_CHANCE = 10, SLOT_MULT = 5;
+  var SLOT_SYM = ['🍒', '🍋', '🔔', '💀', '🍺', '7️⃣'];
+  var MOTEL = [
+    { n: 'Suíte Simples', m: 0.5, s: -15, d: 'Colchão de mola solta e vizinho batendo na parede.' },
+    { n: 'Suíte com Hidro', m: 1.5, s: 25, d: 'Hidromassagem morna e espelho no teto.' },
+    { n: 'Suíte Presidencial', m: 3, s: 100, d: 'Champanhe falsificado, sanidade 100%.' }
+  ];
+  var BINGO_CARD = 20, BINGO_BALLS = 6, BINGO_MAX = 25, BINGO_STEP = 1700;
+  var TRUCO_MS = 15000;
+  var TRUCO_RANKS = ['4', '5', '6', '7', 'Q', 'J', 'K', 'A', '2', '3'];
+  var TRUCO_SUITS = ['♦', '♠', '♥', '♣'];
+  var TRUCO_VAL = [1, 3, 6, 9, 12], TRUCO_NAME = { 3: 'TRUCO', 6: 'SEIS', 9: 'NOVE', 12: 'DOZE' };
+  var DRUNK_TXT = ['oi sumida', 'vc ainda pensa em mim?', 'eu mudei de verdade dessa vez', 'mlk eu te amo vc é meu irmaun', 'me desbloqueia pfv', 'to na frente da sua casa', 'quem é esse cara na sua foto', 'lembra daquela viagem?', 'me empresta 50 conto', 'eu tava certo sobre tudo'];
+  function vicePrices(r) { return MOTEL.map(function (s) { return Math.max(10, Math.round(r * s.m / 5) * 5); }); }
+
+  function landVice(S, p, t, owner, r, now) {
+    p.st.rentPaid += 0;
+    if (t.vi === 1) {
+      setPending(S, 'slot', { tile: t.i, owner: owner.i, bet: r }, now);
+      log(S, '🎰 ' + p.name + ' entrou no ' + t.name + ' (do ' + owner.name + '). Aposta obrigatória de ' + money(r) + '. 10% de chance do dono pagar ' + SLOT_MULT + 'x.');
+      return true;
+    }
+    if (t.vi === 0) {
+      setPending(S, 'motel', { tile: t.i, owner: owner.i, prices: vicePrices(r) }, now);
+      log(S, '🏩 ' + p.name + ' caiu no ' + t.name + ' (do ' + owner.name + ') e precisa escolher a suíte.');
+      return true;
+    }
+    if (t.vi === 2 && p.money >= r) return startBingo(S, p, t, owner, r, now);
+    if (t.vi === 3) {
+      log(S, '🍺 ' + p.name + ' caiu no ' + t.name + ' (do ' + owner.name + ') e pagou ' + money(r) + ' de consumação.', 'bad');
+      p.st.rentPaid += r; owner.st.rentGot += r;
+      pay(S, p, r, owner, now);
+      if (p.ghost || p.money < 20) return true;
+      var opp = alive(S).filter(function (q) { return q !== p && q.money >= 20; });
+      if (!opp.length) return true;
+      setPending(S, 'bar', { tile: t.i, owner: owner.i }, now);
+      log(S, '🃏 ' + p.name + ' pode chamar alguém pra um truco valendo dinheiro. O dono do bar leva 10% do que for apostado.');
+      return true;
+    }
+    return false;
+  }
+
+  // --- cassino
+  function slotPull(S, p, now) {
+    var P = S.pending; if (!P || P.kind !== 'slot' || P.spin) return false;
+    var win = rnd(100) < SLOT_CHANCE, reels;
+    if (win) reels = ['💰', '💰', '💰'];
+    else {
+      var a = pick(SLOT_SYM), b = rnd(100) < 40 ? a : pick(SLOT_SYM), c;
+      if (rnd(100) < 25) { a = '💰'; b = '💰'; }
+      do { c = pick(SLOT_SYM.concat(['💰'])); } while (c === a && a === b);
+      reels = [a, b, c];
+    }
+    P.spin = { id: uid(), reels: reels, win: win, at: now, until: now + SLOT_MS };
+    S.slot = { id: P.spin.id, p: p.i, owner: P.owner, bet: P.bet, reels: reels, win: win, at: now, until: now + SLOT_MS, tile: P.tile };
+    return true;
+  }
+  function slotSettle(S, now) {
+    var P = S.pending, p = S.players[P.p], owner = S.players[P.owner];
+    S.slot.done = true;
+    if (P.spin.win) {
+      var prize = P.bet * SLOT_MULT;
+      log(S, '💰💰💰 JACKPOT! ' + p.name + ' quebrou a banca do ' + owner.name + ' e levou ' + money(prize) + '!', 'big');
+      fx(S, 'stamp', { p: p.i, text: 'Jackpot' });
+      changeSanity(S, p, 20, now); changeSanity(S, owner, -20, now);
+      owner.st.rentPaid += prize; p.st.rentGot += prize;
+      pay(S, owner, prize, p, now);
+    } else {
+      log(S, '🎰 ' + P.spin.reels.join(' ') + ' — ' + p.name + ' perdeu ' + money(P.bet) + ' no caça-níquel do ' + owner.name + '.', 'bad');
+      p.st.rentPaid += P.bet; owner.st.rentGot += P.bet;
+      pay(S, p, P.bet, owner, now);
+    }
+    S.pending = { kind: 'resolve' }; afterResolve(S, now);
+  }
+
+  // --- bingo
+  function bingoCard() {
+    var nums = shuffle(Array.from({ length: BINGO_MAX }, function (_, i) { return i + 1; })).slice(0, 9);
+    return nums;
+  }
+  var BINGO_LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+  function bingoLine(card, drawn) {
+    return BINGO_LINES.filter(function (L) { return L.every(function (k) { return drawn.indexOf(card[k]) >= 0; }); })[0] || null;
+  }
+  function startBingo(S, p, t, owner, r, now) {
+    var pot = r; p.money -= r; p.st.rentPaid += r;
+    var cards = [{ p: p.i, nums: bingoCard() }];
+    alive(S).forEach(function (q) {
+      if (q === p || q === owner) return;
+      if (q.money < BINGO_CARD) return;
+      q.money -= BINGO_CARD; pot += BINGO_CARD;
+      cards.push({ p: q.i, nums: bingoCard() });
+    });
+    var balls = shuffle(Array.from({ length: BINGO_MAX }, function (_, i) { return i + 1; })).slice(0, BINGO_BALLS);
+    var winners = [], at = -1;
+    for (var k = 0; k < balls.length && at < 0; k++) {
+      var drawn = balls.slice(0, k + 1);
+      cards.forEach(function (c) { if (bingoLine(c.nums, drawn)) winners.push(c.p); });
+      if (winners.length) at = k;
+    }
+    var start = Math.max(now, S.busyUntil || 0) + 2600;
+    S.bingo = { id: uid(), p: p.i, owner: owner.i, tile: t.i, pot: pot, cards: cards, balls: balls, winners: winners, at: at, start: start, step: BINGO_STEP,
+      until: start + ((at >= 0 ? at + 1 : balls.length)) * BINGO_STEP + 1800 };
+    cards.forEach(function (c) { var L = bingoLine(c.nums, balls.slice(0, (at >= 0 ? at : balls.length - 1) + 1)); if (L) c.line = L; });
+    setPending(S, 'bingo', {}, now);
+    log(S, '🎱 BINGO DA PARÓQUIA! ' + p.name + ' abriu a rodada no bingo do ' + owner.name + '. ' + (cards.length - 1) + ' cartela(s) a ' + money(BINGO_CARD) + '. Pote: ' + money(pot) + '. Se ninguém fechar linha, o dono embolsa.');
+    return true;
+  }
+  function bingoSettle(S, now) {
+    var B = S.bingo, owner = S.players[B.owner];
+    B.done = true;
+    if (B.winners.length) {
+      var share = Math.floor(B.pot / B.winners.length);
+      B.winners.forEach(function (i) { S.players[i].money += share; changeSanity(S, S.players[i], 15, now); fx(S, 'stamp', { p: i, text: 'Bingo' }); });
+      log(S, '🎱 BINGO! ' + B.winners.map(function (i) { return S.players[i].name; }).join(' e ') + ' fechou linha e levou ' + money(share) + '. O padre ' + owner.name + ' ficou chupando o dedo.', 'big');
+    } else {
+      owner.money += B.pot; owner.st.rentGot += B.pot;
+      log(S, '🎱 Ninguém fechou linha. O ' + owner.name + ' embolsou o pote de ' + money(B.pot) + '. A paróquia agradece.', 'bad');
+    }
+    S.pending = { kind: 'resolve' }; afterResolve(S, now);
+  }
+
+  // --- truco paulista
+  function trucoDeck() { var d = []; TRUCO_RANKS.forEach(function (r) { TRUCO_SUITS.forEach(function (s) { d.push(r + s); }); }); return shuffle(d); }
+  function cRank(c) { return c.slice(0, c.length - 1); }
+  function cSuit(c) { return c.slice(-1); }
+  function cPower(c, man) {
+    if (cRank(c) === man) return 100 + TRUCO_SUITS.indexOf(cSuit(c));
+    return TRUCO_RANKS.indexOf(cRank(c));
+  }
+  function startTruco(S, p, opp, bet, ownerI, now) {
+    var d = trucoDeck(); var vira = d.pop();
+    var man = TRUCO_RANKS[(TRUCO_RANKS.indexOf(cRank(vira)) + 1) % TRUCO_RANKS.length];
+    var T = { id: uid(), a: p.i, b: opp.i, owner: ownerI, bet: bet, vira: vira, man: man,
+      hands: {}, table: [], vazas: [], val: 1, ask: null, lastRaise: -1, turn: p.i, lead: p.i,
+      startsAt: Math.max(now, S.busyUntil || 0) + 2500 };
+    T.hands[p.i] = [d.pop(), d.pop(), d.pop()]; T.hands[opp.i] = [d.pop(), d.pop(), d.pop()];
+    T.deadline = T.startsAt + TRUCO_MS;
+    S.truco = T;
+    setPending(S, 'truco', {}, now);
+    log(S, '🃏 TRUCO NO BAR! ' + p.name + ' x ' + opp.name + ' valendo ' + money(bet) + ' (vira ' + vira + ', manilha ' + man + '). Truco multiplica a aposta. O dono do bar leva 10%.');
+  }
+  function trucoOther(T, i) { return i === T.a ? T.b : T.a; }
+  function trucoHandWinner(T) {
+    var v = T.vazas; // values: player index or -1 tie
+    if (v.length >= 2) {
+      if (v[0] >= 0 && v[0] === v[1]) return v[0];
+      if (v[0] === -1 && v[1] >= 0) return v[1];
+      if (v[0] >= 0 && v[1] === -1) return v[0];
+    }
+    if (v.length === 3) {
+      if (v[2] >= 0 && v[0] !== -1) { var cA = v.filter(function (x) { return x === T.a; }).length, cB = v.filter(function (x) { return x === T.b; }).length; if (cA !== cB) return cA > cB ? T.a : T.b; }
+      if (v[2] === -1) return v[0] >= 0 ? v[0] : (v[1] >= 0 ? v[1] : -2);
+      return v[2];
+    }
+    return null;
+  }
+  function trucoPlay(S, me, ci, now) {
+    var T = S.truco; if (!T || T.done || T.ask || T.turn !== me.i || now < T.startsAt - 300) return false;
+    var h = T.hands[me.i]; ci = Number(ci); if (!(ci >= 0 && ci < h.length)) return false;
+    var card = h.splice(ci, 1)[0];
+    T.table.push({ p: me.i, c: card });
+    if (T.table.length === 1) { T.turn = trucoOther(T, me.i); }
+    else {
+      var x = T.table[0], y = T.table[1];
+      var px = cPower(x.c, T.man), py = cPower(y.c, T.man);
+      var w = px === py ? -1 : (px > py ? x.p : y.p);
+      T.vazas.push(w); T.last = { id: uid(), table: T.table.slice(), w: w };
+      T.table = [];
+      var hw = trucoHandWinner(T);
+      if (hw != null) { trucoEnd(S, hw, now, null); return true; }
+      T.turn = w >= 0 ? w : T.lead; T.lead = T.turn;
+    }
+    T.deadline = now + TRUCO_MS + (T.table.length === 0 ? 1600 : 0);
+    return true;
+  }
+  function trucoAsk(S, me, now) {
+    var T = S.truco; if (!T || T.done || T.ask || T.turn !== me.i || T.lastRaise === me.i || T.val >= 12) return false;
+    var nv = TRUCO_VAL[TRUCO_VAL.indexOf(T.val) + 1];
+    T.ask = { by: me.i, val: nv, id: uid() };
+    T.deadline = now + TRUCO_MS;
+    log(S, '🗣️ ' + me.name + ': "' + TRUCO_NAME[nv] + ', LADRÃO!"');
+    return true;
+  }
+  function trucoAnswer(S, me, ans, now) {
+    var T = S.truco; if (!T || T.done || !T.ask || T.ask.by === me.i || (me.i !== T.a && me.i !== T.b)) return false;
+    var A = T.ask;
+    if (ans === 'run') { log(S, '🏃 ' + me.name + ' correu do ' + TRUCO_NAME[A.val] + '.', 'bad'); T.ask = null; trucoEnd(S, A.by, now, 'correu'); return true; }
+    if (ans === 'yes') {
+      T.val = A.val; T.lastRaise = A.by; T.ask = null; T.deadline = now + TRUCO_MS;
+      log(S, '🤝 ' + me.name + ' aceitou. Agora vale ' + T.val + 'x (' + money(T.bet * T.val) + ').');
+      return true;
+    }
+    if (ans === 'raise' && A.val < 12) {
+      T.val = A.val; T.lastRaise = A.by;
+      var nv = TRUCO_VAL[TRUCO_VAL.indexOf(A.val) + 1];
+      T.ask = { by: me.i, val: nv, id: uid() }; T.deadline = now + TRUCO_MS;
+      log(S, '🗣️ ' + me.name + ': "' + TRUCO_NAME[nv] + '!"');
+      return true;
+    }
+    return false;
+  }
+  function trucoEnd(S, w, now, how) {
+    var T = S.truco; T.done = true; T.winner = w; T.endAt = now; T.how = how || null;
+    T.reveal = { a: T.hands[T.a].slice(), b: T.hands[T.b].slice() };
+    if (w < 0) { log(S, '🃏 Truco empatado. Ninguém paga, todo mundo bebe.'); T.until = now + 3500; return; }
+    var loser = S.players[trucoOther(T, w)], winner = S.players[w], owner = S.players[T.owner];
+    var amt = Math.min(T.bet * T.val, Math.max(0, loser.money));
+    var house = Math.round(amt * 0.1);
+    loser.money -= amt; winner.money += amt - house; if (owner && !owner.ghost) owner.money += house; else winner.money += house;
+    T.amt = amt; T.house = house;
+    loser.drunk = 1; changeSanity(S, loser, -10, now); changeSanity(S, winner, 10, now);
+    fx(S, 'stamp', { p: loser.i, text: 'Bêbado' });
+    log(S, '🃏 ' + winner.name + ' ganhou o truco' + (how === 'correu' ? ' (o outro correu)' : '') + ' e levou ' + money(amt - house) + '. ' + money(house) + ' ficou pro dono do bar (' + (owner ? owner.name : '?') + '). ' + loser.name + ' saiu bêbado.', 'good');
+    T.until = now + 4200;
+  }
+  function trucoTick(S, now) {
+    var T = S.truco; if (!T) return false;
+    if (T.done) { if (now >= T.until) { S.truco = null; S.pending = { kind: 'resolve' }; afterResolve(S, now); return true; } return false; }
+    if (now < T.startsAt) return false;
+    var actor = T.ask ? trucoOther(T, T.ask.by) : T.turn, P = S.players[actor];
+    if (P.bot && now > Math.max(T.startsAt, T.deadline - TRUCO_MS) + 1400) return trucoBot(S, P, now);
+    if (now >= T.deadline) {
+      if (T.ask) return trucoAnswer(S, P, 'yes', now);
+      var h = T.hands[actor]; var lo = 0; h.forEach(function (c, k) { if (cPower(c, T.man) < cPower(h[lo], T.man)) lo = k; });
+      return trucoPlay(S, P, lo, now);
+    }
+    return false;
+  }
+  function trucoStrength(T, i) { return T.hands[i].reduce(function (a, c) { var v = cPower(c, T.man); return a + (v >= 100 ? 4 : v >= 8 ? 2 : v >= 6 ? 1 : 0); }, 0) + T.vazas.filter(function (x) { return x === i; }).length * 3; }
+  function trucoBot(S, P, now) {
+    var T = S.truco, s = trucoStrength(T, P.i);
+    if (T.ask) {
+      if (s >= 6 && T.ask.val < 12 && rnd(3) === 0) return trucoAnswer(S, P, 'raise', now);
+      return trucoAnswer(S, P, s >= 3 || rnd(4) === 0 ? 'yes' : 'run', now);
+    }
+    if (T.lastRaise !== P.i && T.val < 12 && (s >= 6 || rnd(9) === 0) && rnd(2) === 0) return trucoAsk(S, P, now);
+    var h = T.hands[P.i], ord = h.map(function (c, k) { return k; }).sort(function (x, y) { return cPower(h[x], T.man) - cPower(h[y], T.man); });
+    var ci = ord[0];
+    if (T.table.length === 1) {
+      var tp = cPower(T.table[0].c, T.man);
+      var beat = ord.filter(function (k) { return cPower(h[k], T.man) > tp; });
+      ci = beat.length ? beat[0] : ord[0];
+    } else if (h.length === 3) ci = ord[1];
+    else ci = ord[ord.length - 1];
+    return trucoPlay(S, P, ci, now);
+  }
+  function drunkMsg(S, p) { var m = pick(DRUNK_TXT); log(S, '📱 ' + p.name + ' (bêbado) mandou mensagem pra ex: "' + m + '"', 'big'); }
+
+  function viceIntent(S, p, P, it, now) {
+    if (P.kind === 'slot') {
+      if (it.type !== 'pull') return false;
+      return slotPull(S, p, now);
+    }
+    if (P.kind === 'motel') {
+      if (it.type !== 'suite') return false;
+      var k = Number(it.idx); if (!(k >= 0 && k < 3)) return false;
+      var price = P.prices[k], owner = S.players[P.owner], s = MOTEL[k];
+      if (k > 0 && p.money < price) return false;
+      p.st.rentPaid += price; owner.st.rentGot += price;
+      if (k === 2) p.sanity = 100; else changeSanity(S, p, s.s, now);
+      S.motelLast = { id: uid(), p: p.i, k: k };
+      log(S, '🏩 ' + p.name + ' pegou a ' + s.n + ' no ' + S.tiles[P.tile].name + ' e pagou ' + money(price) + ' pro ' + owner.name + '. ' + (k === 0 ? 'Saiu com dor nas costas (-15 de sanidade).' : k === 1 ? 'Saiu renovado (+25 de sanidade).' : 'Saiu zerado de estresse (sanidade 100%).'), k === 0 ? 'bad' : 'good');
+      pay(S, p, price, owner, now);
+      S.pending = { kind: 'resolve' }; afterResolve(S, now); return true;
+    }
+    if (P.kind === 'bar') {
+      if (it.type === 'bar_skip') { log(S, p.name + ' bebeu sozinho e foi embora.'); S.pending = { kind: 'resolve' }; afterResolve(S, now); return true; }
+      if (it.type !== 'bar_challenge') return false;
+      var opp = S.players[Number(it.target)];
+      if (!opp || opp === p || opp.ghost) return false;
+      var max = Math.min(p.money, opp.money); var bet = Math.round(Number(it.bet) || 0);
+      if (bet < 10 || bet > max) return false;
+      startTruco(S, p, opp, bet, P.owner, now); return true;
+    }
+    return false;
+  }
+  function botBar(S, p) {
+    var opp = alive(S).filter(function (q) { return q !== p && q.money >= 20; });
+    if (!opp.length || rnd(3) === 0) return { type: 'bar_skip' };
+    var o = pick(opp); var max = Math.min(p.money, o.money);
+    return { type: 'bar_challenge', target: o.i, bet: Math.max(10, Math.min(max, Math.round(max * (0.05 + rnd(10) / 100) / 10) * 10)) };
+  }
+  function botMotel(S, p, P) {
+    if (p.sanity < 40 && p.money - P.prices[2] > 300) return { type: 'suite', idx: 2 };
+    if (p.sanity < 75 && p.money - P.prices[1] > 250) return { type: 'suite', idx: 1 };
+    return { type: 'suite', idx: 0 };
+  }
+
   // ---------- start ----------
   function startGame(S, now) {
     var seats = shuffle(S.seats.slice());
@@ -1873,7 +2276,13 @@ var BL = (function () {
     }
     S.extraRoll = dbl;
     S.pending = { kind: 'resolve' };
-    moveBy(S, p, d[0] + d[1], now);
+    var steps = d[0] + d[1];
+    if (p.drunk > 0) {
+      p.drunk--; var wob = pick([-1, 1, 1, -1, 0]); steps = Math.max(1, steps + wob);
+      log(S, '🍺 ' + p.name + ' ainda tá bêbado e andou torto' + (wob ? ' (' + (wob > 0 ? '+1' : '-1') + ' casa)' : ', mas por milagre acertou') + '.', 'bad');
+      if (rnd(2) === 0) drunkMsg(S, p);
+    }
+    moveBy(S, p, steps, now);
     afterResolve(S, now);
   }
 
@@ -1963,6 +2372,7 @@ var BL = (function () {
         }
         var owner = S.players[t.owner];
         var r = rentOf(S, t);
+        if (t.type === 'vice' && !owner.ghost && landVice(S, p, t, owner, r, now)) return;
         log(S, p.name + ' caiu em ' + t.name + ' (do ' + owner.name + ') e pagou ' + money(r) + ' de aluguel.', 'bad');
         p.st.rentPaid += r; owner.st.rentGot += r;
         if (r >= 300) { fx(S, 'shake', { p: p.i }); changeSanity(S, p, -10, now, 'aluguel abusivo'); }
@@ -2437,6 +2847,9 @@ var BL = (function () {
       if (Object.keys(S.tribunal.votes).length >= voters) closeTribunal(S, now);
       return true;
     }
+    if (it.type === 'truco_play') { if (P.kind !== 'truco') return false; return trucoPlay(S, me, it.idx, now); }
+    if (it.type === 'truco_ask') { if (P.kind !== 'truco') return false; return trucoAsk(S, me, now); }
+    if (it.type === 'truco_ans') { if (P.kind !== 'truco') return false; return trucoAnswer(S, me, it.ans, now); }
     if (it.type === 'trade_offer') return offerTrade(S, me, it, now);
     if (P.kind === 'trade') {
       if (it.type === 'trade_cancel' && S.trade && me.i === S.trade.from) { closeTrade(S, false, now, 'nem chegou a ver; cancelaram'); return true; }
@@ -2456,6 +2869,8 @@ var BL = (function () {
       return true;
     }
     if (me.i !== S.turn || P.kind === 'tribunal' || P.kind === 'auction' || P.kind === 'duel') return false;
+    if (P.kind === 'slot' || P.kind === 'motel' || P.kind === 'bar') return viceIntent(S, me, P, it, now);
+    if (P.kind === 'truco' || P.kind === 'bingo') return false;
     var p = me, t;
     switch (P.kind) {
       case 'roll':
@@ -2591,6 +3006,9 @@ var BL = (function () {
       case 'fofoca': var m = S.tiles.filter(function (t) { return t.owner === p.i; }); return { type: 'choose_tile', tile: m.length ? m[0].i : 0 };
       case 'uber': var c; do { c = rnd(40); } while (c === 30); return { type: 'choose_tile', tile: c };
       case 'ghost': return { type: 'ghost', action: 'nothing' };
+      case 'slot': return { type: 'pull' };
+      case 'motel': return { type: 'suite', idx: 0 };
+      case 'bar': return { type: 'bar_skip' };
     }
     return null;
   }
@@ -2610,6 +3028,9 @@ var BL = (function () {
         return P.canBuild && p.money - cost > 250 ? { type: 'build' } : { type: 'relax' };
       case 'sell': return { type: 'sell_auto' };
       case 'trade': return botTrade(S, p);
+      case 'slot': return { type: 'pull' };
+      case 'motel': return botMotel(S, p, P);
+      case 'bar': return botBar(S, p);
       case 'takeover': return p.money - P.price > 400 && rnd(3) > 0 ? { type: 'takeover' } : { type: 'pass' };
       case 'fofoca':
         var mine = S.tiles.filter(function (x) { return x.owner === p.i; }).sort(function (a, b) { return rentOf(S, b) - rentOf(S, a); });
@@ -2634,7 +3055,7 @@ var BL = (function () {
     S._now = now;
     var P = S.pending; if (!P) return false;
     var changed = false;
-    if (S.endsAt && now >= S.endsAt && P.kind !== 'tribunal' && P.kind !== 'auction' && P.kind !== 'duel' && now >= (S.busyUntil || 0)) {
+    if (S.endsAt && now >= S.endsAt && P.kind !== 'tribunal' && P.kind !== 'auction' && P.kind !== 'duel' && P.kind !== 'truco' && P.kind !== 'bingo' && !(P.kind === 'slot' && P.spin) && now >= (S.busyUntil || 0)) {
       var best = alive(S).slice().sort(function (a, b) { return patrimony(S, b) - patrimony(S, a); })[0];
       finish(S, best, 'time', now); return true;
     }
@@ -2658,6 +3079,9 @@ var BL = (function () {
       if (now >= A.endsAt) { closeAuction(S, now); return true; }
       return changed;
     }
+    if (P.kind === 'slot' && P.spin) { if (now >= P.spin.until) { slotSettle(S, now); return true; } return false; }
+    if (P.kind === 'bingo' && S.bingo) { if (now >= S.bingo.until) { bingoSettle(S, now); return true; } return false; }
+    if (P.kind === 'truco' && S.truco) return trucoTick(S, now);
     if (P.kind === 'duel' && S.duel) {
       changed = botDuel(S, now) || changed;
       if (S.duel && now >= S.duel.endsAt) { closeDuel(S, now); return true; }
@@ -2698,7 +3122,7 @@ var BL = (function () {
     rentOf: rentOf, tileValue: tileValue, buildCost: buildCost, patrimony: patrimony, groupComplete: groupComplete,
     PIECES: PIECES, COLORS: COLORS, TAGS: TAGS, CURSES: CURSES, pieceOf: pieceOf, curseById: curseById,
     TURN_MS: TURN_MS, STEP_MS: STEP_MS, PASS_MS: PASS_MS, AUCTION_MS: AUCTION_MS,
-    priceOf: priceOf, buildCostOf: buildCostOf, newsActive: newsActive, DUELS: DUELS, JAIL_FEE: JAIL_FEE, UBER_FARE: UBER_FARE, CUR: CUR, WIN_TEXT: WIN_TEXT, sellValue: sellValue, TRADE_MS: TRADE_MS, MAX_TRADES: MAX_TRADES
+    priceOf: priceOf, buildCostOf: buildCostOf, newsActive: newsActive, DUELS: DUELS, JAIL_FEE: JAIL_FEE, UBER_FARE: UBER_FARE, CUR: CUR, WIN_TEXT: WIN_TEXT, sellValue: sellValue, TRADE_MS: TRADE_MS, MAX_TRADES: MAX_TRADES, MOTEL: MOTEL, SLOT_MULT: SLOT_MULT, BINGO_CARD: BINGO_CARD, TRUCO_MS: TRUCO_MS, TRUCO_NAME: TRUCO_NAME, cPower: cPower, bingoLine: bingoLine, _land: function (S, i, now) { var p = S.players[S.turn]; p.pos = i; S.pending = { kind: 'resolve' }; resolveTile(S, p, now); afterResolve(S, now); }
   };
 })();
 if (typeof module !== 'undefined') module.exports = BL;
@@ -6705,6 +7129,288 @@ var _da15 = doAct;
 doAct = function(a, d){ if (a === 'odNext'){ if (bzCool('od', 2500)){ OUT.until = 0; outdoorTick(); } return; } return _da15(a, d); };
 var _ro15 = renderOutdoor;
 renderOutdoor = function(V){ _ro15.apply(this, arguments); var od = $('#outdoor'); if (od && !od.dataset.act){ od.dataset.act = 'odNext'; od.setAttribute('role', 'button'); od.setAttribute('aria-label', 'Outdoor'); } };
+
+// ---- v7.5: casas especiais (cassino, motel, bingo, bar/truco) ----
+var VX = { slotId: null, stops: {}, bingoN: -1, bingoId: null, bet: null, target: null, trucoAsk: null, trucoVaza: 0, trucoEnd: null };
+var VX_KINDS = { slot: 1, motel: 1, bingo: 1, bar: 1, truco: 1 };
+var SLOT_ALL = ['🍒', '🍋', '🔔', '💀', '🍺', '7️⃣', '💰'];
+function vxAs(i){ return N.mode === 'local' ? ' data-as="' + i + '"' : ''; }
+function vxFace(p, extra){ return '<span class="vxwho" style="--pc:' + p.color + '"><span class="vav" data-mood="ok">' + pieceSVG(p.piece) + '</span><b>' + esc(p.name) + '</b>' + (extra || '') + '</span>'; }
+
+var _ra0vx = renderAction0;
+renderAction0 = function(V){
+  var P = V.pending, box = $('#action'), M = me();
+  if (!presenting && P && V.phase === 'game' && VX_KINDS[P.kind]){
+    var h = vxHTML(V, M, P);
+    if (h){
+      box.classList.add('modal'); box.classList.add('vx'); box.classList.remove('hidden');
+      var dk = $('.dock'); if (dk){ dk.classList.add('hasmodal'); dk.classList.remove('pickmode'); }
+      if (box._h !== h){ box._h = h; box.innerHTML = h; vxLoop(true); }
+      return;
+    }
+  }
+  box.classList.remove('vx');
+  _ra0vx(V);
+};
+var _wt0vx = waitingText;
+waitingText = function(V, P, p){
+  switch (P.kind){
+    case 'slot': return p.name + ' está no caça-níquel.';
+    case 'motel': return p.name + ' está escolhendo a suíte do motel.';
+    case 'bingo': return 'Bingo da Paróquia rolando.';
+    case 'bar': return p.name + ' está decidindo se chama alguém pro truco.';
+    case 'truco': return 'Truco no bar!';
+  }
+  return _wt0vx(V, P, p);
+};
+
+function vxHTML(V, M, P){
+  var p = V.players[P.p != null ? P.p : V.turn];
+  var mine = N.mode === 'local' || (M && M.i === p.i);
+  if (P.kind === 'slot') return slotHTML(V, P, p, mine);
+  if (P.kind === 'motel') return motelHTML(V, P, p, mine);
+  if (P.kind === 'bingo') return bingoHTML(V);
+  if (P.kind === 'bar') return mine ? barHTML(V, P, p) : '';
+  if (P.kind === 'truco') return trucoHTML(V, M);
+  return '';
+}
+
+// ---------- cassino ----------
+function slotHTML(V, P, p, mine){
+  var ow = V.players[P.owner], spin = P.spin;
+  var reels = [0, 1, 2].map(function(k){
+    var strip = SLOT_ALL.slice(k).concat(SLOT_ALL.slice(0, k)); strip = strip.concat(strip.slice(0, 1));
+    return '<div class="reel" id="reel' + k + '"><div class="strip">' + strip.map(function(s){ return '<span>' + s + '</span>'; }).join('') + '</div></div>';
+  }).join('');
+  var h = '<div class="ach">🎰 Cassino Clandestino</div>' +
+    '<div class="vxsub">' + esc(p.name) + ' caiu no cassino do <b>' + esc(ow.name) + '</b>. Aposta obrigatória: perdeu, o dinheiro vai pro dono. Deu 💰💰💰, o dono paga ' + BL.SLOT_MULT + 'x.</div>' +
+    '<div class="slotm' + (spin ? ' spin' : '') + '" id="slotm" data-id="' + (spin ? spin.id : '') + '"><div class="marq">CAÇA-NÍQUEL</div><div class="bulbs">' + new Array(12).join('<i></i>') + '<i></i></div><div class="reels">' + reels + '</div><div class="lever"></div></div>' +
+    '<div class="slotinfo"><span>Aposta ' + bb(P.bet) + '</span><span>Jackpot ' + bb(P.bet * BL.SLOT_MULT) + '</span><span>Chance 10%</span></div>' +
+    '<div class="slotres" id="slotres"></div>';
+  if (!spin){
+    if (mine) h += '<div class="acb"><button class="go big pullbtn" data-act="vxPull"' + vxAs(p.i) + '>🕹️ Puxar a alavanca</button></div>';
+    else h += '<p class="acp">Esperando ' + esc(p.name) + ' puxar a alavanca…</p>';
+  }
+  return h;
+}
+function slotStops(sp){ var near = sp.reels[0] === sp.reels[1]; return [sp.at + 1700, sp.at + 2900, sp.at + (near ? 5600 : 4100)]; }
+
+// ---------- motel ----------
+var SUITE_IC = ['🛏️', '🛁', '👑'];
+function motelHTML(V, P, p, mine){
+  var ow = V.players[P.owner];
+  var h = '<div class="ach">🏩 Motel Xamego</div><div class="vxsub">' + esc(p.name) + ' precisa escolher a suíte. O dinheiro vai pro <b>' + esc(ow.name) + '</b>.</div>' +
+    '<div class="motelmenu"><div class="mmt">Cardápio de suítes</div><div class="suites">';
+  BL.MOTEL.forEach(function(s, k){
+    var price = P.prices[k], can = mine && (k === 0 || p.money >= price);
+    var sTxt = k === 2 ? 'Sanidade 100%' : (s.s > 0 ? '+' : '') + s.s + ' sanidade';
+    h += '<button class="suite" data-act="vxSuite" data-k="' + k + '"' + vxAs(p.i) + (can ? '' : ' disabled') + '><span class="si">' + SUITE_IC[k] + '</span><b>' + esc(s.n) + '</b><small>' + esc(s.d) + '</small><span class="sp">' + bb(price) + '</span><span class="ss ' + (s.s < 0 ? 'neg' : 'pos') + '">' + sTxt + '</span></button>';
+  });
+  h += '</div></div>';
+  if (!mine) h += '<p class="acp">' + esc(p.name) + ' está olhando o cardápio…</p>';
+  else h += '<p class="acp" style="font-size:14px">Sua sanidade agora: <b>' + p.sanity + '</b>. Seu dinheiro: <b>' + bb(p.money) + '</b>.</p>';
+  return h;
+}
+
+// ---------- bingo ----------
+function bingoHTML(V){
+  var B = V.bingo; if (!B) return '';
+  var ow = V.players[B.owner], M = me();
+  var h = '<div class="ach">🎱 Bingo da Paróquia</div><div class="vxsub">Pote: <b>' + bb(B.pot) + '</b>. Fechou linha (reta ou diagonal) leva tudo. Ninguém fechou, o padre <b>' + esc(ow.name) + '</b> embolsa.</div>' +
+    '<div class="bgball" id="bgball"></div><div class="bgcards">';
+  B.cards.forEach(function(c){
+    var pl = V.players[c.p];
+    h += '<div class="bgcard' + (M && M.i === c.p ? ' me' : '') + '" id="bgc' + c.p + '" style="--pc:' + pl.color + '"><div class="bgn">' + esc(pl.name) + '</div><div class="bggrid">' + c.nums.map(function(n, k){ return '<span data-n="' + n + '" data-k="' + k + '">' + n + '</span>'; }).join('') + '</div></div>';
+  });
+  h += '</div><div class="bgres" id="bgres"></div>';
+  return h;
+}
+
+// ---------- bar ----------
+function barHTML(V, P, p){
+  var ow = V.players[P.owner];
+  var opps = V.players.filter(function(q){ return q !== p && !q.ghost && q.money >= 20; });
+  if (VX.target == null || !opps.some(function(q){ return q.i === VX.target; })) VX.target = opps.length ? opps[0].i : null;
+  var tg = VX.target != null ? V.players[VX.target] : null;
+  var max = tg ? Math.min(p.money, tg.money) : 0;
+  if (VX.bet == null || VX.bet > max) VX.bet = Math.max(10, Math.min(max, Math.round(max * 0.15 / 10) * 10));
+  var h = '<div class="ach">🍺 Bar Sem Alvará</div><div class="vxsub">' + esc(p.name) + ' já pagou a consumação. Quer chamar alguém pra um <b>truco paulista</b> valendo dinheiro? Quem for chamado não pode recusar.</div>' +
+    '<div class="barpick">' + opps.map(function(q){ return '<button data-act="vxTarget" data-t="' + q.i + '" class="' + (q.i === VX.target ? 'sel' : '') + '" style="--pc:' + q.color + '"><span class="vav" data-mood="ok">' + pieceSVG(q.piece) + '</span>' + esc(q.name) + ' <small>' + bb(q.money) + '</small></button>'; }).join('') + '</div>' +
+    '<div class="betrow"><b>Aposta:</b>' + [0.1, 0.25, 0.5, 1].map(function(f){ var v = Math.max(10, Math.floor(max * f / 10) * 10); if (f === 1) v = max; return '<button data-act="vxBet" data-v="' + v + '">' + (f === 1 ? 'Tudo ' : '') + bb(v) + '</button>'; }).join('') +
+    '<input id="vxBetIn" type="number" min="10" max="' + max + '" step="10" value="' + VX.bet + '"></div>' +
+    '<div class="housecut">🧾 O dono do bar (' + esc(ow.name) + ') fica com <b>10% do valor apostado</b>. Pedir truco multiplica a aposta (3x, 6x, 9x, 12x), mas ninguém perde mais do que tem no bolso. Quem perder sai bêbado.</div>' +
+    '<div class="acb"><button class="go big" data-act="vxChallenge"' + vxAs(p.i) + (tg ? '' : ' disabled') + '>🃏 Chamar ' + (tg ? esc(tg.name) : '') + ' pro truco</button><button data-act="vxBarSkip"' + vxAs(p.i) + '>Só beber e ir embora</button></div>';
+  return h;
+}
+
+// ---------- truco ----------
+function tcardHTML(c, T, btn){
+  var r = c.slice(0, c.length - 1), s = c.slice(-1), red = s === '♥' || s === '♦', man = T && r === T.man;
+  var cls = 'tcard' + (red ? ' red' : '') + (man ? ' man' : '');
+  return btn ? '<button class="' + cls + '" ' + btn + '><b>' + r + '</b><i>' + s + '</i></button>' : '<span class="' + cls + '"><b>' + r + '</b><i>' + s + '</i></span>';
+}
+function trucoActor(T){ return T.ask ? (T.ask.by === T.a ? T.b : T.a) : T.turn; }
+function trucoHTML(V, M){
+  var T = V.truco; if (!T) return '';
+  var A = V.players[T.a], B = V.players[T.b], ow = V.players[T.owner];
+  var local = N.mode === 'local';
+  var actor = T.done ? -1 : trucoActor(T);
+  var viewer = local ? (actor >= 0 ? actor : T.a) : (M && (M.i === T.a || M.i === T.b) ? M.i : -1);
+  var top = viewer === T.a ? B : viewer === T.b ? A : B, bot = top === A ? B : A;
+  var nameRow = function(p){ return '<div class="tpl' + (!T.done && actor === p.i ? ' turn' : '') + '" style="--pc:' + p.color + '"><span class="vav" data-mood="grr">' + pieceSVG(p.piece) + '</span><b>' + esc(p.name) + '</b><small>' + bb(p.money) + '</small></div>'; };
+  var vz = [0, 1, 2].map(function(k){ var w = T.vazas[k]; return '<i style="background:' + (w == null ? 'transparent' : w < 0 ? '#999' : V.players[w].color) + '"></i>'; }).join('');
+  var h = '<div class="ach">🃏 Truco no Bar</div>' +
+    '<div class="vxsub">Valendo <b>' + bb(T.bet) + '</b> por ponto · o dono do bar (' + esc(ow.name) + ') leva 10%</div><div class="felt">';
+  // top hand
+  var topCards = T.done && T.reveal ? (top.i === T.a ? T.reveal.a : T.reveal.b).map(function(c){ return tcardHTML(c, T); }).join('') : T.hands[top.i].map(function(){ return '<span class="tcard back"><b></b><i></i></span>'; }).join('');
+  h += '<div class="trow">' + nameRow(top) + '<div class="tval">VALE ' + T.val + (T.val > 1 ? ' · ' + bb(T.bet * T.val) : '') + '</div></div><div class="thand">' + topCards + '</div>';
+  // middle
+  var tbl = T.table.length ? T.table.map(function(x){ return tcardHTML(x.c, T); }).join('') : (T.last && !T.done ? '' : '');
+  h += '<div class="tmid"><div class="tvira">' + tcardHTML(T.vira, null) + '<span>vira · manilha ' + esc(T.man) + '</span></div><div class="ttable">' + tbl + '</div><div class="tvz" title="Vazas">' + vz + '</div></div>';
+  if (T.ask && !T.done) h += '<div class="tshout">' + esc(BL.TRUCO_NAME[T.ask.val]) + '!</div><div class="tlocal">' + esc(V.players[T.ask.by].name) + ' pediu ' + BL.TRUCO_NAME[T.ask.val].toLowerCase() + ' (' + bb(T.bet * T.ask.val) + ')</div>';
+  // bottom hand
+  var canPlay = !T.done && !T.ask && viewer === T.turn && viewer === bot.i;
+  var botCards = T.done && T.reveal ? (bot.i === T.a ? T.reveal.a : T.reveal.b).map(function(c){ return tcardHTML(c, T); }).join('') :
+    viewer === bot.i ? T.hands[bot.i].map(function(c, k){ return tcardHTML(c, T, 'data-act="vxPlay" data-k="' + k + '"' + vxAs(bot.i) + (canPlay ? '' : ' disabled')); }).join('') :
+    T.hands[bot.i].map(function(){ return '<span class="tcard back"><b></b><i></i></span>'; }).join('');
+  h += '<div class="thand">' + botCards + '</div><div class="trow">' + nameRow(bot) + (local && !T.done ? '<span class="tlocal">Mão de ' + esc(bot.name) + ': o outro não olha!</span>' : '') + '</div>';
+  if (!T.done && viewer === actor && viewer >= 0){
+    var b = '';
+    if (T.ask){
+      b += '<button class="go" data-act="vxAns" data-v="yes"' + vxAs(viewer) + '>Aceito</button><button class="bad" data-act="vxAns" data-v="run"' + vxAs(viewer) + '>Corro</button>';
+      if (T.ask.val < 12) b += '<button class="truco" data-act="vxAns" data-v="raise"' + vxAs(viewer) + '>' + BL.TRUCO_NAME[[3, 6, 9, 12][[3, 6, 9, 12].indexOf(T.ask.val) + 1]] + '!</button>';
+    } else if (T.lastRaise !== viewer && T.val < 12){
+      var nv = [1, 3, 6, 9, 12][[1, 3, 6, 9, 12].indexOf(T.val) + 1];
+      b += '<button class="truco" data-act="vxAsk"' + vxAs(viewer) + '>' + BL.TRUCO_NAME[nv] + '!</button>';
+    }
+    if (b) h += '<div class="tbtns">' + b + '</div>';
+  } else if (!T.done && viewer < 0) h += '<div class="tlocal">Assistindo. Vez de ' + esc(V.players[actor].name) + '.</div>';
+  if (T.done){
+    if (T.winner < 0) h += '<div class="tres">Empatou. Ninguém paga.</div>';
+    else { var w = V.players[T.winner], l = V.players[T.winner === T.a ? T.b : T.a]; h += '<div class="tres">' + esc(w.name) + ' ganhou ' + bb(T.amt - T.house) + (T.how === 'correu' ? ' (' + esc(l.name) + ' correu)' : '') + '<br><small style="font-size:16px">' + bb(T.house) + ' pro dono do bar · ' + esc(l.name) + ' saiu bêbado 🍺</small></div>'; }
+  }
+  h += '<div class="tclock" id="tclock"><i></i></div></div>';
+  return h;
+}
+
+// ---------- actions ----------
+var _doActVx = doAct;
+doAct = function(a, d){
+  var as = d && d.as != null ? Number(d.as) : null;
+  var go = function(it){ if (as != null) it.as = as; act(it); };
+  switch (a){
+    case 'vxPull': go({ type: 'pull' }); sfx('thump'); return;
+    case 'vxSuite': go({ type: 'suite', idx: Number(d.k) }); sfx(Number(d.k) === 0 ? 'boing' : 'good'); return;
+    case 'vxTarget': VX.target = Number(d.t); VX.bet = null; render(); return;
+    case 'vxBet': VX.bet = Number(d.v); var bi = $('#vxBetIn'); if (bi) bi.value = VX.bet; sfx('tick'); return;
+    case 'vxChallenge':
+      var bi2 = $('#vxBetIn'); var v = Math.round(Number(bi2 && bi2.value) || VX.bet || 0);
+      var V = view(), P = V && V.pending, p = P && V.players[P.p], tg = VX.target != null && V.players[VX.target];
+      if (!tg) return;
+      var max = Math.min(p.money, tg.money);
+      if (v < 10 || v > max){ toast('Aposta entre ' + bb(10) + ' e ' + bb(max) + '.'); return; }
+      go({ type: 'bar_challenge', target: tg.i, bet: v }); VX.bet = null; sfx('pop'); return;
+    case 'vxBarSkip': go({ type: 'bar_skip' }); return;
+    case 'vxPlay': go({ type: 'truco_play', idx: Number(d.k) }); sfx('pop'); return;
+    case 'vxAsk': go({ type: 'truco_ask' }); sfx('honk'); return;
+    case 'vxAns': go({ type: 'truco_ans', ans: d.v }); sfx(d.v === 'run' ? 'womp' : 'pop'); return;
+  }
+  _doActVx(a, d);
+};
+document.addEventListener('input', function(e){ if (e.target && e.target.id === 'vxBetIn') VX.bet = Number(e.target.value) || 0; });
+
+// ---------- animation loop (keeps the modal HTML stable) ----------
+function vxLoop(force){
+  var V = view(); if (!V || V.phase !== 'game') return;
+  var now = hostNow();
+  // slot
+  var sm = $('#slotm');
+  var sp = V.pending && V.pending.kind === 'slot' && V.pending.spin ? V.pending.spin : (V.slot && sm && sm.dataset.id === V.slot.id ? { id: V.slot.id, reels: V.slot.reels, win: V.slot.win, at: V.slot.at } : null);
+  if (sm && sp){
+    if (VX.slotId !== sp.id){ VX.slotId = sp.id; VX.stops = {}; sfx('drum'); }
+    var st = slotStops(sp);
+    [0, 1, 2].forEach(function(k){
+      var el = $('#reel' + k); if (!el) return;
+      var stopped = now >= st[k];
+      if (stopped){
+        if (!el.classList.contains('stop')){
+          el.classList.remove('run', 'slow'); el.classList.add('stop');
+          el.querySelector('.strip').innerHTML = '<span>' + sp.reels[k] + '</span>';
+          if (!VX.stops[k]){ VX.stops[k] = 1; sfx('land'); }
+          if (k === 1 && sp.reels[0] === sp.reels[1]){ $('#reel0').classList.add('hot'); el.classList.add('hot'); }
+        }
+      } else {
+        el.classList.add('run');
+        if (k === 2 && sp.reels[0] === sp.reels[1] && now >= st[1]) el.classList.add('slow');
+        if (k === 2 && el.classList.contains('slow') && Math.floor(now / 250) % 2 === 0) sfx('tick');
+      }
+    });
+    var rs = $('#slotres');
+    if (rs){
+      var txt = now >= st[2] ? (sp.win ? '💰 JACKPOT! 💰' : 'Perdeu, otário.') : (now >= st[1] && sp.reels[0] === sp.reels[1] ? 'Vai… vai… VAI…' : '');
+      if (rs.textContent !== txt){ rs.textContent = txt; rs.className = 'slotres' + (now >= st[2] ? (sp.win ? ' win' : ' lose') : ''); if (now >= st[2]) sfx(sp.win ? 'fanfare' : 'trombone'); }
+    }
+  }
+  // bingo
+  var bg = $('#bgball'), B = V.bingo;
+  if (bg && B){
+    var last = B.at >= 0 ? B.at : B.balls.length - 1;
+    var n = now < B.start ? 0 : Math.min(last + 1, Math.floor((now - B.start) / B.step) + 1);
+    if (VX.bingoId !== B.id){ VX.bingoId = B.id; VX.bingoN = -1; }
+    if (n !== VX.bingoN || force){
+      if (n > VX.bingoN && n > 0) sfx('pop');
+      VX.bingoN = n;
+      var drawn = B.balls.slice(0, n);
+      bg.innerHTML = n ? drawn.map(function(x){ return '<i>' + x + '</i>'; }).join('') + new Array(Math.max(0, B.balls.length - n) + 1).join('<i class="empty"></i>') : '<span class="acp">Padre misturando as bolas…</span>';
+      B.cards.forEach(function(c){
+        var cel = $('#bgc' + c.p); if (!cel) return;
+        var line = BL.bingoLine(c.nums, drawn);
+        cel.querySelectorAll('span').forEach(function(s){ var hit = drawn.indexOf(Number(s.dataset.n)) >= 0; s.classList.toggle('hit', hit); s.classList.toggle('line', !!line && line.indexOf(Number(s.dataset.k)) >= 0); });
+        cel.classList.toggle('win', !!line);
+      });
+      var done = n >= last + 1;
+      var res = $('#bgres');
+      if (res){
+        var t = '';
+        if (done && B.winners.length) t = '🎉 BINGO! ' + B.winners.map(function(i){ return V.players[i].name; }).join(' e ') + ' leva ' + bb(Math.floor(B.pot / B.winners.length));
+        else if (done) t = '😇 Ninguém fechou. O padre ' + V.players[B.owner].name + ' embolsou ' + bb(B.pot) + '.';
+        if (res.textContent !== t){ res.textContent = t; if (t) sfx(B.winners.length ? 'fanfare' : 'trombone'); }
+      }
+    }
+  }
+  // truco clock + shout sounds
+  var T = V.truco, tc = $('#tclock i');
+  if (T && tc){
+    var left = T.done ? 0 : Math.max(0, T.deadline - now) / (BL.TRUCO_MS + 1600);
+    tc.style.width = Math.min(100, left * 100) + '%';
+    if (T.ask && VX.trucoAsk !== T.ask.id){ VX.trucoAsk = T.ask.id; sfx('alarm'); }
+    if (T.vazas.length !== VX.trucoVaza){ VX.trucoVaza = T.vazas.length; if (T.vazas.length) sfx('cash'); }
+    if (T.done && VX.trucoEnd !== T.id){ VX.trucoEnd = T.id; var M = me(); sfx(M && T.winner === M.i ? 'fanfare' : 'trombone'); }
+  }
+  // drunk
+  var M2 = me(), dr = !!(M2 && M2.drunk > 0 && !M2.ghost);
+  document.body.classList.toggle('drunk', dr && (N.mode !== 'local' || V.turn === M2.i));
+  var db = $('#drunkbadge');
+  if (dr && !db){ db = document.createElement('div'); db.id = 'drunkbadge'; db.className = 'drunkbadge'; db.textContent = '🍺 Você tá bêbado: o próximo passo sai torto'; document.body.appendChild(db); }
+  if (!dr && db) db.remove();
+}
+setInterval(vxLoop, 120);
+
+// bêbado: mensagens no chat saem embaralhadas
+var _actVx = act;
+act = function(it){
+  var M = me();
+  if (it && it.type === 'chat' && M && M.drunk > 0 && typeof it.text === 'string') it.text = drunkify(it.text);
+  return _actVx(it);
+};
+function drunkify(s){
+  var out = s.split(' ').map(function(w){
+    if (w.length > 3 && Math.random() < 0.5){ var a = w.split(''); var i = 1 + Math.floor(Math.random() * (a.length - 2)); var t = a[i]; a[i] = a[i + 1]; a[i + 1] = t; w = a.join(''); }
+    if (Math.random() < 0.25) w = w.replace(/[aeiou]/i, function(v){ return v + v + v; });
+    return w;
+  }).join(' ');
+  return out + (Math.random() < 0.5 ? ' kkkkk' : ' 🍺') + (Math.random() < 0.3 ? ' te amo mano' : '');
+}
 
 if (location.hash === '#debug') window.__bl = { N: N, BL: BL, refresh: function(){ N.view = BL.publicState(N.S); render(); }, x: function(f){ return eval(f); } };
 render();
