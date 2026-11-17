@@ -822,6 +822,14 @@ h2{font-size:30px} h3{font-size:23px}
 .ibtn.trade{background:var(--yellow)}
 @media (max-width:560px){.tcols{grid-template-columns:1fr}}
 .paper .pnext{text-align:center;font-size:19px;font-weight:800;padding:4px 0;border-bottom:2px solid var(--ink)}
+.tmoney2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.tmoney2 label{display:flex;flex-direction:column;gap:4px;font-weight:800;font-size:15px}
+.tmoney2 small{font-weight:600;opacity:.7}
+.ibtn.evict{background:#E9DDFB}
+.evictbar{position:absolute;left:50%;top:80px;transform:translateX(-50%);z-index:37;width:min(520px,94vw)}
+@media (max-width:760px){.evictbar{top:120px}}
+.evictbar .actcard{padding:8px 14px 10px}
+@media (max-width:560px){.tmoney2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -895,6 +903,9 @@ var BL = (function () {
   // ---------- cards ----------
   // ops: ['money',n] ['sanity',n] ['payEach',n] ['fromEach',n] ['sogra'] ['goto',t] ['move',n] ['curse'] ['downgrade']
   var BASE_CARDS = [
+    ['Seu primo é despachante e conhece um juiz. Você ganhou uma ORDEM DE DESPEJO: use quando quiser na sua vez pra tomar um imóvel de alguém, pagando o dobro do valor.', [['takeover']]],
+    ['Achou um alvará falsificado no lixo da prefeitura. Ganhou uma ORDEM DE DESPEJO pra tomar o imóvel de alguém quando quiser (pagando o dobro).', [['takeover']]],
+    ['Um oficial de justiça bêbado te deve um favor. ORDEM DE DESPEJO guardada: tome um imóvel de outro jogador na sua vez, pagando o dobro.', [['takeover']]],
     ['Seu tio rico morreu e esqueceram de te deserdar.', [['money', 200]]],
     ['Você vendeu o carro da sua ex sem ela saber. A culpa veio de brinde.', [['money', 150], ['sanity', -10]]],
     ['Seu terapeuta pediu demissão depois da sua última sessão.', [['sanity', -15]]],
@@ -1172,7 +1183,7 @@ var BL = (function () {
 
   // ---------- deck ----------
   function mkCard(text, ops, about) {
-    var good = ops.every(function (o) { return (o[0] === 'money' || o[0] === 'sanity') ? o[1] > 0 : (o[0] === 'fromEach' || o[0] === 'curse'); });
+    var good = ops.every(function (o) { return (o[0] === 'money' || o[0] === 'sanity') ? o[1] > 0 : (o[0] === 'fromEach' || o[0] === 'curse' || o[0] === 'takeover'); });
     return { id: uid(), text: text, ops: ops, about: about == null ? null : about, good: good };
   }
   function buildDeck(S) {
@@ -1390,13 +1401,13 @@ var BL = (function () {
     S.deck = buildDeck(S); S.discard = [];
     S.fofocaTile = -1;
     S.turn = 0; S.dice = [0, 0]; S.doubles = 0; S.round = 1;
-    S.startedAt = now; S.endsAt = now + S.settings.duration * 60000;
+    S.startedAt = now; S.endsAt = S.settings.duration ? now + S.settings.duration * 60000 : 0;
     S.phase = 'game'; S.card = null; S.tribunal = null; S.winner = null; S.busyUntil = 0;
     S.log = []; S.fx = [];
     var qs = TRIBUNAL_Q.slice();
     if (S.ai && S.ai.tribunal) qs = qs.concat(S.ai.tribunal.map(function (q) { return str(q, 140); }).filter(Boolean));
     S.tribunalQs = shuffle(qs);
-    log(S, 'A partida começou! Duração: ' + S.settings.duration + ' minutos. Que vença o pior.', 'big');
+    log(S, 'A partida começou! ' + (S.settings.duration ? 'Duração: ' + S.settings.duration + ' minutos.' : 'Sem limite de tempo: só acaba quando alguém cumprir um objetivo ou todo mundo falir.') + ' Que vença o pior.', 'big');
     beginTurn(S, now);
   }
 
@@ -1432,6 +1443,35 @@ var BL = (function () {
     }
     beginTurn(S, now);
   }
+  // ---------- eviction order (forced purchase) ----------
+  function forceBuy(S, p, ti, now) {
+    var t = S.tiles[ti];
+    if (!(p.powers > 0) || !t || t.owner < 0 || t.owner === p.i || t.level >= 4 || (t.type !== 'prop' && t.type !== 'vice')) return false;
+    var price = 2 * tileValue(t), victim = S.players[t.owner];
+    if (p.money < price || victim.ghost) return false;
+    p.powers--;
+    pay(S, p, price, victim, now);
+    if (S.fofocaTile === t.i) S.fofocaTile = -1;
+    t.owner = p.i; p.st.takeovers++; victim.st.lostHouses++;
+    log(S, '📜 ORDEM DE DESPEJO: ' + p.name + ' tomou ' + t.name + ' do ' + victim.name + ' por ' + money(price) + '. ' + victim.name + ' saiu com a mudança no carrinho de supermercado.', 'big');
+    fx(S, 'crack', { tile: t.i }); fx(S, 'stamp', { tile: t.i, text: 'Despejado' });
+    changeSanity(S, victim, -20, now);
+    checkWin(S, now);
+    if (S.phase === 'game' && S.pending && S.pending.kind === 'roll') S.pending.since = now;
+    return true;
+  }
+  function botForceTarget(S, p) {
+    if (!(p.powers > 0)) return null;
+    var best = null;
+    S.tiles.forEach(function (t) {
+      if (t.owner < 0 || t.owner === p.i || t.level >= 4 || (t.type !== 'prop' && t.type !== 'vice')) return;
+      var price = 2 * tileValue(t); if (p.money - price < 300) return;
+      var mine = t.type === 'vice' ? S.tiles.filter(function (x) { return x.type === 'vice' && x.owner === p.i; }).length : S.groups[t.g].tiles.filter(function (j) { return S.tiles[j].owner === p.i; }).length;
+      if (mine >= 1 && (!best || mine > best.m)) best = { t: t.i, m: mine };
+    });
+    return best ? best.t : null;
+  }
+
   // ---------- trades between players ----------
   var TRADE_MS = 30000, MAX_TRADES = 2;
   function tradeValue(S, ids) { return ids.reduce(function (a, i) { return a + tileValue(S.tiles[i]); }, 0); }
@@ -1445,9 +1485,9 @@ var BL = (function () {
     var names = function (ids) { return ids.map(function (i) { return S.tiles[i].name; }).join(', '); };
     var a = [], b = [];
     if (T.give.length) a.push(names(T.give));
-    if (T.pay > 0) a.push(money(T.pay));
+    if (T.payA) a.push(money(T.payA));
     if (T.take.length) b.push(names(T.take));
-    if (T.pay < 0) b.push(money(-T.pay));
+    if (T.payB) b.push(money(T.payB));
     return A.name + ' oferece ' + (a.join(' + ') || 'nada') + ' em troca de ' + (b.join(' + ') || 'nada') + ' de ' + B.name;
   }
   function offerTrade(S, me, it, now) {
@@ -1457,13 +1497,11 @@ var BL = (function () {
     var to = S.players[Number(it.to)];
     if (!to || to === me || to.ghost) return false;
     var give = cleanIds(S, it.give, me.i), take = cleanIds(S, it.take, to.i);
-    var pay = Math.round(Number(it.pay) || 0);
-    pay = clamp(pay, -5000, 5000);
-    if (!give.length && !take.length) return false;
-    if (pay > 0 && me.money < pay) return false;
-    if (pay < 0 && to.money < -pay) return false;
+    var payA = clamp(Math.round(Number(it.payA) || 0), 0, 99999), payB = clamp(Math.round(Number(it.payB) || 0), 0, 99999);
+    if (!give.length && !take.length && !payA && !payB) return false;
+    if (me.money < payA || to.money < payB) return false;
     me.tradesThisTurn = (me.tradesThisTurn || 0) + 1;
-    S.trade = { id: uid(), from: me.i, to: to.i, give: give, take: take, pay: pay };
+    S.trade = { id: uid(), from: me.i, to: to.i, give: give, take: take, payA: payA, payB: payB };
     S.afterTrade = P;
     S.pending = { kind: 'trade', p: to.i, since: now, id: uid() };
     log(S, '🤝 PROPOSTA: ' + tradeText(S, S.trade) + '. ' + to.name + ' tem 30 segundos pra decidir.', 'big');
@@ -1474,12 +1512,11 @@ var BL = (function () {
     var A = S.players[T.from], B = S.players[T.to];
     var ok = accept && !A.ghost && !B.ghost &&
       T.give.every(function (i) { return S.tiles[i].owner === A.i; }) && T.take.every(function (i) { return S.tiles[i].owner === B.i; }) &&
-      (T.pay <= 0 || A.money >= T.pay) && (T.pay >= 0 || B.money >= -T.pay);
+      A.money >= T.payA && B.money >= T.payB;
     if (ok) {
       T.give.forEach(function (i) { S.tiles[i].owner = B.i; if (S.fofocaTile === i) S.fofocaTile = -1; });
       T.take.forEach(function (i) { S.tiles[i].owner = A.i; if (S.fofocaTile === i) S.fofocaTile = -1; });
-      if (T.pay > 0) { A.money -= T.pay; B.money += T.pay; }
-      if (T.pay < 0) { B.money += T.pay; A.money -= T.pay; }
+      A.money += T.payB - T.payA; B.money += T.payA - T.payB;
       log(S, '🤝 NEGÓCIO FECHADO! ' + tradeText(S, T) + '. Aperto de mão suado.', 'good');
       fx(S, 'confetti', { p: A.i, text: 'Negócio fechado!' });
     } else if (accept) {
@@ -1494,7 +1531,7 @@ var BL = (function () {
   }
   function botTrade(S, p) {
     var T = S.trade; if (!T) return { type: 'trade_no' };
-    var get = tradeValue(S, T.give) + Math.max(0, T.pay), lose = tradeValue(S, T.take) + Math.max(0, -T.pay);
+    var get = tradeValue(S, T.give) + T.payA, lose = tradeValue(S, T.take) + T.payB;
     var danger = (S.threats || []).some(function (th) { return th.p === T.from && T.take.indexOf(th.tile) >= 0; });
     var completes = T.take.some(function (i) { var t = S.tiles[i]; return t.type === 'prop' && S.groups[t.g].tiles.every(function (j) { return j === i || S.tiles[j].owner === T.from || T.take.indexOf(j) >= 0; }); });
     return !danger && !completes && get >= lose * 1.2 ? { type: 'trade_yes' } : { type: 'trade_no' };
@@ -1654,7 +1691,6 @@ var BL = (function () {
         if (r >= 300) { fx(S, 'shake', { p: p.i }); changeSanity(S, p, -10, now, 'aluguel abusivo'); }
         pay(S, p, r, owner, now);
         if (p.ghost || S.phase !== 'game') return;
-        if (t.level < 4 && p.money >= 2 * tileValue(t)) setPending(S, 'takeover', { tile: t.i, price: 2 * tileValue(t) }, now);
         return;
     }
   }
@@ -1746,12 +1782,13 @@ var BL = (function () {
       var c = S.deck.pop();
       S.discard.push(c);
       if (c.about != null && (!S.players[c.about] || S.players[c.about].ghost)) continue;
+      if (c.about != null && c.about !== p.i && tries < 50) { S.deck.unshift(c); S.discard.pop(); continue; }
       card = c;
     }
     if (!card) return;
     S.card = { id: uid(), text: card.text, good: card.good, about: card.about, by: p.i, ops: card.ops };
     busy(S, 2200);
-    var target = card.about != null ? S.players[card.about] : p;
+    var target = p;
     log(S, (card.good ? '🍀 Sorte' : '🩸 Revés') + ' (' + p.name + ' tirou): ' + card.text + ' → ' + describeOps(card.ops, target), card.good ? 'good' : 'bad');
     if (!card.good) fx(S, 'tear', {});
     applyOps(S, card.ops, target, p, now);
@@ -1764,6 +1801,7 @@ var BL = (function () {
         case 'payEach': return target.name + ' paga ' + money(o[1]) + ' pra cada um';
         case 'fromEach': return 'cada um paga ' + money(o[1]) + ' pro ' + target.name;
         case 'sogra': return target.name + ' vai morar com a sogra';
+        case 'takeover': return target.name + ' ganha uma Ordem de Despejo';
         case 'goto': return target.name + ' vai pra outra casa';
         case 'move': return target.name + ' anda ' + o[1] + ' casas';
         case 'curse': return target.name + ' ganha uma maldição';
@@ -1794,6 +1832,10 @@ var BL = (function () {
           if (target === drawer) { moveBy(S, target, n, now); return; }
           break;
         case 'curse': giveCurse(S, target, 'Carta'); break;
+        case 'takeover':
+          target.powers = Math.min(2, (target.powers || 0) + 1);
+          log(S, '📜 ' + target.name + ' guardou uma Ordem de Despejo (tem ' + target.powers + '). Dá pra usar na vez dele, antes de rolar.', 'good');
+          break;
         case 'downgrade': downgradeBest(S, target); break;
       }
     }
@@ -1921,7 +1963,7 @@ var BL = (function () {
       var p = S.players[pi], list = byP[pi];
       var parts = list.map(function (th) {
         var t = S.tiles[th.tile], o = t.owner >= 0 ? S.players[t.owner] : null;
-        return ALERT_WHY[th.why] + ': falta ' + t.name + (o ? ' (hoje é do ' + o.name + ', dá pra tomar com tomada hostil)' : ' (sem dono)');
+        return ALERT_WHY[th.why] + ': falta ' + t.name + (o ? ' (hoje é do ' + o.name + ', só sai com Ordem de Despejo ou negociando)' : ' (sem dono)');
       });
       log(S, '🚨 ALERTA: ' + p.name + ' está a 1 terreno de GANHAR. ' + parts.join('. ') + '. Quem puder, não deixa!', 'big');
       fx(S, 'alert', { p: p.i, tiles: list.map(function (th) { return th.tile; }), text: p.name + ' está a 1 terreno de ganhar!' });
@@ -2043,7 +2085,7 @@ var BL = (function () {
         S.podres.splice(idx, 1); return true;
       case 'settings':
         if (!isHost) return false;
-        if ([10, 20, 30, 50, 60].indexOf(Number(it.duration)) >= 0) S.settings.duration = Number(it.duration);
+        if ([0, 10, 20, 30, 50, 60].indexOf(Number(it.duration)) >= 0) S.settings.duration = Number(it.duration);
         return true;
       case 'bot_add':
         if (!isHost || S.seats.length >= MAX_SEATS) return false;
@@ -2138,6 +2180,7 @@ var BL = (function () {
           if (ok && S.phase === 'game' && S.pending && S.pending.kind === 'roll') S.pending.since = now;
           return ok;
         }
+        if (it.type === 'force_buy') return forceBuy(S, p, Number(it.tile), now);
         if (it.type !== 'roll') return false;
         doRoll(S, p, now); return true;
       case 'jail':
@@ -2267,6 +2310,7 @@ var BL = (function () {
     var leader = others.slice().sort(function (a, b) { return patrimony(S, b) - patrimony(S, a); })[0];
     switch (P.kind) {
       case 'roll':
+        var ft = botForceTarget(S, p); if (ft != null) return { type: 'force_buy', tile: ft };
         if (p.curses.length && !p.cursedThisTurn && leader && rnd(2) === 0) return { type: 'curse', idx: 0, target: leader.i };
         return { type: 'roll' };
       case 'jail': return p.money > 500 ? { type: 'pay_jail' } : { type: 'roll' };
@@ -2301,7 +2345,7 @@ var BL = (function () {
     S._now = now;
     var P = S.pending; if (!P) return false;
     var changed = false;
-    if (now >= S.endsAt && P.kind !== 'tribunal' && P.kind !== 'auction' && P.kind !== 'duel' && now >= (S.busyUntil || 0)) {
+    if (S.endsAt && now >= S.endsAt && P.kind !== 'tribunal' && P.kind !== 'auction' && P.kind !== 'duel' && now >= (S.busyUntil || 0)) {
       var best = alive(S).slice().sort(function (a, b) { return patrimony(S, b) - patrimony(S, a); })[0];
       finish(S, best, 'time', now); return true;
     }
@@ -2601,7 +2645,7 @@ function createRoom(){
   withTimeout(loadPack(), 3000, null).then(function(pack){
     if (pack){
       S.packSeats = pack.seats || []; S.podres = (pack.podres || []).slice(-80);
-      if ([10,20,30,50,60].indexOf(pack.duration) >= 0) S.settings.duration = pack.duration;
+      if ([0,10,20,30,50,60].indexOf(pack.duration) >= 0) S.settings.duration = pack.duration;
       if (pack.ai) S.ai = pack.ai;
     }
     BL.apply(S, N.cid, { type: 'join', name: myName }, Date.now());
@@ -2632,7 +2676,7 @@ function playLocal(){
   N.S = BL.newState('LOCAL', 'local'); N.S.local = true;
   var nm = (($('#nameIn') && $('#nameIn').value) || '').trim();
   loadPack().then(function(pack){
-    if (pack){ N.S.packSeats = pack.seats || []; N.S.podres = (pack.podres || []).slice(-80); if (pack.ai) N.S.ai = pack.ai; if ([10,20,30,50,60].indexOf(pack.duration) >= 0) N.S.settings.duration = pack.duration; }
+    if (pack){ N.S.packSeats = pack.seats || []; N.S.podres = (pack.podres || []).slice(-80); if (pack.ai) N.S.ai = pack.ai; if ([0,10,20,30,50,60].indexOf(pack.duration) >= 0) N.S.settings.duration = pack.duration; }
     BL.apply(N.S, 'local', { type: 'local_add', name: nm || 'Jogador 1' }, Date.now());
     localSel = N.S.seats[0].cid;
     afterHostChange();
@@ -2643,7 +2687,7 @@ function resumeGame(){
   try {
     var S = JSON.parse(d.state);
     var pause = Date.now() - d.savedAt;
-    S.endsAt += pause; if (S.pending) S.pending.since = Date.now();
+    if (S.endsAt) S.endsAt += pause; if (S.pending) S.pending.since = Date.now();
     if (S.tribunal) S.tribunal.endsAt = Date.now() + 30000;
     var oldHost = S.hostCid;
     S.hostCid = N.cid; S.v += 100000; S.epoch = rid(8);
@@ -3160,7 +3204,7 @@ function updateLobby(){
     return '<div class="postit" style="transform:rotate(' + rot + 'deg)"><small>' + esc(TAGS[p.tag]) + ' de ' + esc(p.about) + ' · por ' + esc(p.by) + '</small>' + esc(p.text) +
       (can ? '<button class="x" data-act="podreDel" data-id="' + esc(p.id) + '" aria-label="Apagar podre">✕</button>' : '') + '</div>';
   }).join('') || '<p class="muted">Nenhum podre ainda. Comece pelo pior.</p>';
-  $('#dur').innerHTML = [10,20,30,50,60].map(function(d){ return '<button data-act="dur" data-d="' + d + '" class="' + (V.settings.duration === d ? 'sel' : '') + '"' + (host ? '' : ' disabled') + '>' + d + ' min</button>'; }).join('');
+  $('#dur').innerHTML = [10,20,30,50,60,0].map(function(d){ return '<button data-act="dur" data-d="' + d + '" class="' + (V.settings.duration === d ? 'sel' : '') + '"' + (host ? '' : ' disabled') + '>' + (d ? d + ' min' : '∞ Sem limite') + '</button>'; }).join('');
   var tools = '';
   if (host){
     tools += '<div class="row" style="margin-top:12px"><button data-act="bot"' + (V.seats.length >= 6 ? ' disabled' : '') + '>Adicionar bot</button></div>';
@@ -3423,6 +3467,7 @@ function effText(c){
       case 'move': return 'anda ' + o[1];
       case 'curse': return '+1 maldição';
       case 'downgrade': return 'perde um andar';
+      case 'takeover': return '+1 Ordem de Despejo 📜';
     }
     return '';
   }).join('  ');
@@ -4679,7 +4724,7 @@ function duelReflex(){
 // ---------- help modal + spotlight tour ----------
 var HELP = [
   ['🏚️', 'Bem-vindo ao Bad Landlords', 'O objetivo é falir os seus amigos. Você ganha se tiver os 4 lugares de perdição, 3 grupos de cor completos, um lado inteiro do tabuleiro, ou o maior patrimônio quando o tempo acabar.'],
-  ['🎲', 'Sua vez', 'Role os dados e ande. Casa sem dono: compre ou passe. Passar pelo começo dá B$300. Casa de outro: pague aluguel e, se tiver dinheiro, faça uma tomada hostil pagando o dobro.'],
+  ['🎲', 'Sua vez', 'Role os dados e ande. Casa sem dono: compre ou passe. Passar pelo começo dá B$300. Casa de outro: pague aluguel. Tirou uma Ordem de Despejo no Sorte? Use na sua vez pra tomar o imóvel de alguém pagando o dobro.'],
   ['🧠', 'Sua casa e sua sanidade', 'Caiu na sua própria casa: se tiver todos os terrenos da cor, construa um andar (aluguel sobe); ou relaxe pra recuperar sanidade, ou só pule. Se a sanidade zerar, você surta, perde a vez e vende uma casa no desespero.'],
   ['⚖️', 'Casas especiais', 'Sorte ou revés tem cartas feitas com os podres do grupo. Tribunal é votação. Maldição te dá uma carta pra jogar nos outros. Fofoca dobra um aluguel seu. Uber bêbado leva pra qualquer casa. Sogra é a prisão.'],
   ['📰', 'Caos extra', 'A cada 3 rodadas sai um Plantão da semana e rola um Minigame da rodada entre dois jogadores. A cada 7 rodadas o banco faz um Leilão. Na sua vez, antes de rolar, dá pra Negociar imóveis e dinheiro com os outros. Caiu na mesma casa que alguém? Sempre rola um duelo relâmpago valendo dinheiro.'],
@@ -5221,22 +5266,21 @@ function renderTradeComposer(){
   var mine = V.tiles.filter(function(t){ return t.owner === M.i; }), theirs = O ? V.tiles.filter(function(t){ return t.owner === O.i; }) : [];
   var gv = mine.filter(function(t){ return TR.give[t.i]; }).reduce(function(a, t){ return a + BL.tileValue(t); }, 0);
   var tv = theirs.filter(function(t){ return TR.take[t.i]; }).reduce(function(a, t){ return a + BL.tileValue(t); }, 0);
-  var amt = Math.max(0, Math.round(TR.pay || 0));
   var h = '<div class="helpbg"><div class="tradecard" role="dialog" aria-label="Negociar"><button class="dx" data-act="tradeClose" aria-label="Fechar">✕</button>' +
     '<div class="ach">🤝 Negociar</div><p class="acp">Monte a proposta. A outra pessoa tem 30 segundos pra aceitar. Você pode fazer até ' + BL.MAX_TRADES + ' propostas por vez.</p>' +
     '<div class="tpick">' + others.map(function(q){ return '<button class="' + (q.i === TR.to ? 'sel' : '') + '" data-act="tradeTo" data-p="' + q.i + '" style="--pc:' + q.color + '"><span class="tav">' + headSVG(q.piece) + '</span>' + esc(q.name) + '<small>' + bb(q.money) + '</small></button>'; }).join('') + '</div>' +
     '<div class="tcols"><div><b>Você dá</b>' + (mine.length ? mine.map(function(t){ return tileRow(t, TR.give[t.i], 'tradeGive'); }).join('') : '<p class="muted">Você não tem imóveis.</p>') + '</div>' +
     '<div><b>Você recebe' + (O ? ' de ' + esc(O.name) : '') + '</b>' + (theirs.length ? theirs.map(function(t){ return tileRow(t, TR.take[t.i], 'tradeTake'); }).join('') : '<p class="muted">Não tem imóveis.</p>') + '</div></div>' +
-    '<div class="tmoney"><div class="chips"><button class="' + (TR.dir === 'pay' ? 'sel' : '') + '" data-act="tradeDir" data-d="pay">Eu pago</button><button class="' + (TR.dir === 'get' ? 'sel' : '') + '" data-act="tradeDir" data-d="get">Eu recebo</button></div>' +
-    '<input id="tradeAmt" type="number" min="0" step="10" value="' + amt + '" aria-label="Valor em dinheiro"><span>em dinheiro</span></div>' +
-    '<p class="tsum">Você dá ' + bb(gv + (TR.dir === 'pay' ? amt : 0)) + ' · recebe ' + bb(tv + (TR.dir === 'get' ? amt : 0)) + '</p>' +
+    '<div class="tmoney2"><label>💰 Você coloca (B$)<input id="tradeA" type="number" min="0" step="10" value="' + (TR.payA || 0) + '"><small>tem ' + bb(M.money) + '</small></label>' +
+    '<label>💰 ' + (O ? esc(O.name) : 'O outro') + ' coloca (B$)<input id="tradeB" type="number" min="0" step="10" value="' + (TR.payB || 0) + '"><small>tem ' + bb(O ? O.money : 0) + '</small></label></div>' +
+    '<p class="tsum">Você dá ' + bb(gv + (TR.payA || 0)) + ' · recebe ' + bb(tv + (TR.payB || 0)) + '</p>' +
     '<p class="err" id="tradeErr"></p><div class="acb"><button data-act="tradeClose">Cancelar</button><button class="go" data-act="tradeSend">Enviar proposta</button></div></div></div>';
-  if (host._h !== h){ host._h = h; var a = document.activeElement && document.activeElement.id === 'tradeAmt'; host.innerHTML = h; if (a){ var inp = $('#tradeAmt'); inp.focus(); var v = inp.value; inp.value = ''; inp.value = v; } }
+  if (host._h !== h){ host._h = h; var a = document.activeElement && document.activeElement.id; host.innerHTML = h; if (a === 'tradeA' || a === 'tradeB'){ var inp = $('#' + a); inp.focus(); var v = inp.value; inp.value = ''; inp.value = v; } }
 }
 function tradeOfferHTML(V, M){
   var T = V.trade, A = V.players[T.from], B = V.players[T.to];
   var list = function(ids){ return ids.map(function(i){ var t = V.tiles[i]; return '<li><i style="background:' + (t.color || '#5B3F7A') + '"></i>' + esc(t.name) + ' <small>(' + (t.type === 'prop' ? LVNAME[t.level || 0] : 'Vício') + ', vale ' + bb(BL.tileValue(t)) + ')</small></li>'; }).join(''); };
-  var gives = list(T.give) + (T.pay > 0 ? '<li>💰 ' + bb(T.pay) + '</li>' : ''), takes = list(T.take) + (T.pay < 0 ? '<li>💰 ' + bb(-T.pay) + '</li>' : '');
+  var gives = list(T.give) + (T.payA ? '<li>💰 ' + bb(T.payA) + '</li>' : ''), takes = list(T.take) + (T.payB ? '<li>💰 ' + bb(T.payB) + '</li>' : '');
   var target = N.mode === 'local' || (M && M.i === B.i), proposer = M && M.i === A.i && N.mode !== 'local';
   var h = '<div class="ach">🤝 Proposta de negócio</div>' +
     '<div class="toffer"><div><b>' + esc(A.name) + ' dá</b><ul>' + (gives || '<li>nada</li>') + '</ul></div><div class="tarrow">⇄</div><div><b>' + esc(B.name) + ' dá</b><ul>' + (takes || '<li>nada</li>') + '</ul></div></div>';
@@ -5262,21 +5306,21 @@ doAct = function(a, d){
   var V = view(), M = me(), P = V && V.pending;
   var asT = function(it){ if (N.mode === 'local' && P) it.as = P.p; return it; };
   switch (a){
-    case 'tradeOpen': TR = { open: true, to: null, give: {}, take: {}, pay: 0, dir: 'pay' }; renderTradeComposer(); return;
+    case 'tradeOpen': TR = { open: true, to: null, give: {}, take: {}, payA: 0, payB: 0 }; renderTradeComposer(); return;
     case 'tradeClose': TR.open = false; renderTradeComposer(); return;
     case 'tradeTo': TR.to = Number(d.p); TR.take = {}; renderTradeComposer(); return;
     case 'tradeGive': TR.give[d.t] = !TR.give[d.t]; renderTradeComposer(); return;
     case 'tradeTake': TR.take[d.t] = !TR.take[d.t]; renderTradeComposer(); return;
     case 'tradeDir': TR.dir = d.d; renderTradeComposer(); return;
     case 'tradeSend':
-      var amt = Math.max(0, Math.round(Number(($('#tradeAmt') || {}).value) || 0));
+      var pa = Math.max(0, Math.round(Number(($('#tradeA') || {}).value) || 0)), pb = Math.max(0, Math.round(Number(($('#tradeB') || {}).value) || 0));
       var give = Object.keys(TR.give).filter(function(k){ return TR.give[k]; }).map(Number), take = Object.keys(TR.take).filter(function(k){ return TR.take[k]; }).map(Number);
       var err = '';
-      if (!give.length && !take.length) err = 'Escolha pelo menos um imóvel pra trocar.';
-      else if (TR.dir === 'pay' && amt > M.money) err = 'Você não tem esse dinheiro todo.';
-      else if (TR.dir === 'get' && amt > V.players[TR.to].money) err = V.players[TR.to].name + ' não tem esse dinheiro todo.';
+      if (!give.length && !take.length && !pa && !pb) err = 'Coloque pelo menos um imóvel ou algum dinheiro na proposta.';
+      else if (pa > M.money) err = 'Você não tem esse dinheiro todo.';
+      else if (pb > V.players[TR.to].money) err = V.players[TR.to].name + ' não tem esse dinheiro todo.';
       if (err){ var e = $('#tradeErr'); if (e) e.textContent = err; return; }
-      act({ type: 'trade_offer', to: TR.to, give: give, take: take, pay: TR.dir === 'pay' ? amt : -amt });
+      act({ type: 'trade_offer', to: TR.to, give: give, take: take, payA: pa, payB: pb });
       TR.open = false; renderTradeComposer(); sfx('pop'); return;
     case 'tradeYes': act(asT({ type: 'trade_yes' })); sfx('cash'); return;
     case 'tradeNo': act(asT({ type: 'trade_no' })); return;
@@ -5301,7 +5345,7 @@ updateGame = function(){
     renderTradeComposer();
   } catch(e){}
 };
-document.addEventListener('input', function(e){ if (e.target && e.target.id === 'tradeAmt'){ TR.pay = Number(e.target.value) || 0; var V = view(), M = me(); var s = $('.tsum'); if (s && V && M){ renderTradeComposer(); } } });
+document.addEventListener('input', function(e){ if (e.target && (e.target.id === 'tradeA' || e.target.id === 'tradeB')){ TR[e.target.id === 'tradeA' ? 'payA' : 'payB'] = Math.max(0, Number(e.target.value) || 0); renderTradeComposer(); } });
 var _ev6 = evType;
 evType = function(t){
   if (/PROPOSTA:/.test(t)) return ['trade', '🤝', 'Proposta de negócio'];
@@ -5310,6 +5354,69 @@ evType = function(t){
   return _ev6(t);
 };
 
+// ---- v6.8: unlimited time, eviction order card, trade money fields ----
+var EVP = { on: false };
+function evictable(V, M, t){ return t && (t.type === 'prop' || t.type === 'vice') && t.owner >= 0 && t.owner !== M.i && (t.level || 0) < 4 && M.money >= 2 * BL.tileValue(t) && !V.players[t.owner].ghost; }
+function canEvictNow(V, M){ return V && M && V.phase === 'game' && V.pending && V.pending.kind === 'roll' && V.turn === M.i && !M.ghost && (M.powers || 0) > 0 && !presenting; }
+var _ug7 = updateGame;
+updateGame = function(){
+  _ug7.apply(this, arguments);
+  try {
+    var V = view(), M = me();
+    var gt = $('#gtimer'); if (gt && V && !V.endsAt){ gt.textContent = '∞'; var tw = $('#tower'); if (tw) tw.classList.remove('low'); }
+    var b = $('#evictBtn');
+    var can = canEvictNow(V, M);
+    if (b){ b.classList.toggle('hidden', !can); if (can) b.textContent = '📜 Ordem de Despejo (' + M.powers + ')'; }
+    if (!can) EVP.on = false;
+    var bar = $('#evictbar');
+    if (bar){
+      if (EVP.on){ var any = V.tiles.some(function(t){ return evictable(V, M, t); });
+        bar.innerHTML = '<div class="actcard"><div class="ach small">📜 Ordem de Despejo</div><p class="acp">' + (any ? 'Toque no imóvel de outro jogador que você quer tomar. Custa o dobro do valor e vai direto pro dono.' : 'Nenhum imóvel cabe no seu bolso agora (custa o dobro do valor). Guarde a ordem pra depois.') + '</p><div class="acb"><button data-act="evictCancel">Cancelar</button></div></div>';
+        bar.classList.remove('hidden');
+      } else { bar.innerHTML = ''; bar.classList.add('hidden'); }
+    }
+    if (V && V.tiles) V.tiles.forEach(function(t){
+      var el = $('#tile-' + t.i); if (!el) return;
+      if (EVP.on){ el.classList.toggle('pick', evictable(V, M, t)); el.classList.toggle('nopick', !evictable(V, M, t)); }
+      else if (!choose){ el.classList.remove('pick'); el.classList.remove('nopick'); }
+    });
+  } catch(e){}
+};
+var _bg7 = buildGame;
+buildGame = function(){
+  _bg7.apply(this, arguments);
+  var bl = $('.hud-bl');
+  if (bl && !$('#evictBtn')){ var b = document.createElement('button'); b.id = 'evictBtn'; b.className = 'ibtn evict hidden'; b.dataset.act = 'evictStart'; bl.insertBefore(b, bl.firstChild); }
+  var g = $('.g2');
+  if (g && !$('#evictbar')){ var e = document.createElement('div'); e.id = 'evictbar'; e.className = 'evictbar hidden'; g.appendChild(e); }
+};
+var _da7 = doAct;
+doAct = function(a, d){
+  var V = view(), M = me();
+  if (a === 'evictStart'){ EVP.on = true; CAM.hold = true; updateGame(); return; }
+  if (a === 'evictCancel'){ EVP.on = false; CAM.hold = false; updateGame(); return; }
+  if (a === 'tile' && EVP.on){
+    var t = V && V.tiles[Number(d.i)];
+    if (evictable(V, M, t)){
+      var ow = V.players[t.owner];
+      if (window.confirm ? true : true){ act({ type: 'force_buy', tile: t.i }); EVP.on = false; CAM.hold = false; toast('Ordem de despejo enviada: ' + t.name + ' por ' + bb(2 * BL.tileValue(t)) + ' pro ' + ow.name + '.'); updateGame(); }
+      return;
+    }
+    toast('Esse imóvel não dá pra despejar (seu, sem dono, torre ou caro demais).'); return;
+  }
+  if (a === 'dur0'){ act({ type: 'settings', duration: 0 }); return; }
+  return _da7(a, d);
+};
+var _ev7 = evType;
+evType = function(t){
+  if (/ORDEM DE DESPEJO:/.test(t)) return ['takeover', '📜', 'Ordem de Despejo'];
+  if (/guardou uma Ordem de Despejo/.test(t)) return ['good', '📜', 'Ordem de Despejo guardada'];
+  return _ev7(t);
+};
+
+
+var _ut7 = updateTimers;
+updateTimers = function(){ _ut7.apply(this, arguments); var V = view(); var gt = $('#gtimer'); if (gt && V && V.phase === 'game' && !V.endsAt){ gt.textContent = '∞'; var tw = $('#tower'); if (tw) tw.classList.remove('low'); } };
 if (location.hash === '#debug') window.__bl = { N: N, BL: BL, refresh: function(){ N.view = BL.publicState(N.S); render(); }, x: function(f){ return eval(f); } };
 render();
 })();
