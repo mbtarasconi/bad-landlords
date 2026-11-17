@@ -1,0 +1,9 @@
+{
+  "name": "bad-landlords",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bad Landlords: Monopoly sem freio para jogar com os amigos",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
