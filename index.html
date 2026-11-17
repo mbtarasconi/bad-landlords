@@ -7582,35 +7582,24 @@ function obraTiles(V){
   });
 }
 function flashUI(V){
-  var F = V.flash, bar = $('#flashbar'), now = hostNow(), M = me();
-  if (!F || V.phase !== 'game'){ if (bar) bar.remove(); var od0 = $('#outdoor'); if (od0) od0.classList.remove('flash'); return; }
+  var F = V.flash, bar = $('#flashbar'), now = hostNow();
+  var od = $('#outdoor'), ot = $('#odtxt');
+  var live = F && V.phase === 'game' && F.winner < 0 && now >= F.at;
+  if (od) od.classList.toggle('flash', !!live);
+  if (live && ot){ var m = 'PIX GRÁTIS DE ' + bb(F.amt) + ' PRO PRIMEIRO QUE CLICAR AQUI'; if (ot.textContent !== m) ot.textContent = m; OUT.until = Date.now() + 3000; }
+  if (!F || V.phase !== 'game' || F.winner < 0){ if (bar) bar.remove(); return; }
   if (!bar){ bar = document.createElement('div'); bar.id = 'flashbar'; document.body.appendChild(bar); }
-  var h, cls;
-  if (F.winner >= 0){
-    var w = V.players[F.winner];
-    cls = 'res' + (F.golpe ? ' golpe' : '');
-    h = '<span class="ft">' + (F.golpe ? '🪤 ERA GOLPE! ' + esc(w.name) + ' perdeu ' + bb(F.amt) : '⚡ ' + esc(w.name) + ' pegou ' + bb(F.amt) + '!') + '</span>';
-    if (FL.shown !== F.id + 'r'){ FL.shown = F.id + 'r'; sfx(F.golpe ? 'trombone' : 'cash'); }
-  } else if (now < F.at){
-    cls = 'on';
-    h = '<span class="ft">⚡ PROMOÇÃO RELÂMPAGO NO OUTDOOR</span><span class="cd">' + Math.ceil((F.at - now) / 1000) + '</span>';
-    if (FL.shown !== F.id){ FL.shown = F.id; sfx('alarm'); }
-  } else {
-    cls = 'on';
-    var txt = '<span class="ft">PIX GRÁTIS DE ' + bb(F.amt) + ' PRO PRIMEIRO QUE CLICAR</span>';
-    var who = N.mode === 'local' ? V.players.filter(function(p){ return !p.ghost; }) : (M && !M.ghost ? [M] : []);
-    h = txt + who.map(function(p){ return '<button data-act="flashClaim"' + (N.mode === 'local' ? ' data-as="' + p.i + '"' : '') + '>' + (N.mode === 'local' ? esc(p.name) + '!' : 'EU QUERO!') + '</button>'; }).join('');
-  }
+  var w = V.players[F.winner];
+  var cls = 'res' + (F.golpe ? ' golpe' : '');
+  var h = '<span class="ft">' + (F.golpe ? '🪤 ERA GOLPE! ' + esc(w.name) + ' clicou no outdoor e perdeu ' + bb(F.amt) : '⚡ ' + esc(w.name) + ' viu o outdoor primeiro e pegou ' + bb(F.amt) + '!') + '</span>';
+  if (FL.shown !== F.id + 'r'){ FL.shown = F.id + 'r'; sfx(F.golpe ? 'trombone' : 'cash'); }
   var key = cls + h;
   if (bar._k !== key){ bar._k = key; bar.className = cls; bar.innerHTML = h; }
-  var od = $('#outdoor'), ot = $('#odtxt');
-  if (od) od.classList.toggle('flash', F.winner < 0);
-  if (ot && F.winner < 0){ var m = 'PIX GRÁTIS DE ' + bb(F.amt) + '! CLIQUE JÁ! (CONFIA)'; if (ot.textContent !== m) ot.textContent = m; OUT.until = Date.now() + 3000; }
 }
 var _doActFl = doAct;
 doAct = function(a, d){
   if (a === 'flashClaim'){ var it = { type: 'flash' }; if (d && d.as != null) it.as = Number(d.as); act(it); sfx('pop'); return; }
-  if (a === 'odNext'){ var V = view(); if (V && V.flash && V.flash.winner < 0 && hostNow() >= V.flash.at){ var M = me(); if (M && N.mode !== 'local'){ act({ type: 'flash' }); sfx('pop'); return; } } }
+  if (a === 'odNext'){ var V = view(); if (V && V.flash && V.flash.winner < 0 && hostNow() >= V.flash.at){ var M = me(); if (M || N.mode === 'local'){ act({ type: 'flash' }); sfx('pop'); return; } } }
   _doActFl(a, d);
 };
 setInterval(function(){ var V = view(); if (!V || !V.tiles || V.phase !== 'game') { var b = $('#flashbar'); if (b) b.remove(); return; } obraTiles(V); flashUI(V); }, 150);
