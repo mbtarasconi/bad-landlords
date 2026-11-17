@@ -12,15 +12,15 @@
     return fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), keepalive: false }).then(function(r){ if (!r.ok && r.status !== 204) throw new Error('http ' + r.status); });
   }
   function channel(ch){
-    var handlers = {}, peerFns = [], lastPeers = [], closed = false, presence = null;
+    var handlers = {}, peerFns = [], lastPeers = [], closed = false, presence = null, lastPres = 0;
     var es = new EventSource('/rt/sse?ch=' + encodeURIComponent(ch) + '&id=' + encodeURIComponent(tabId));
     es.addEventListener('msg', function(e){ var m; try { m = JSON.parse(e.data); } catch(x){ return; } (handlers[m.topic] || []).forEach(function(f){ try { f(m.data); } catch(x){} }); });
     es.addEventListener('peers', function(e){ try { lastPeers = JSON.parse(e.data); } catch(x){ return; } peerFns.forEach(function(f){ try { f(lastPeers); } catch(x){} }); });
-    es.addEventListener('open', function(){ if (presence) post('/rt/presence', { ch: ch, id: tabId, presence: presence }).catch(function(){}); });
+    es.addEventListener('open', function(){ lastPres = Date.now(); if (presence) post('/rt/presence', { ch: ch, id: tabId, presence: presence }).catch(function(){}); });
     var api = {
       emit: function(topic, data){ return post('/rt/emit', { ch: ch, id: tabId, topic: topic, data: data }); },
       on: function(topic, fn){ (handlers[topic] = handlers[topic] || []).push(fn); return function(){ handlers[topic] = (handlers[topic] || []).filter(function(f){ return f !== fn; }); }; },
-      presence: function(p){ presence = Object.assign({}, presence || {}, p || {}); return post('/rt/presence', { ch: ch, id: tabId, presence: presence }).catch(function(){}); },
+      presence: function(p){ var nx = Object.assign({}, presence || {}, p || {}); var same = JSON.stringify(nx) === JSON.stringify(presence); presence = nx; if (same && Date.now() - lastPres < 60000) return Promise.resolve(); lastPres = Date.now(); return post('/rt/presence', { ch: ch, id: tabId, presence: presence }).catch(function(){}); },
       onPeers: function(fn){ peerFns.push(fn); if (lastPeers.length) fn(lastPeers); },
       leave: function(){ if (closed) return; closed = true; es.close(); post('/rt/leave', { ch: ch, id: tabId }).catch(function(){}); }
     };
@@ -830,6 +830,28 @@ h2{font-size:30px} h3{font-size:23px}
 @media (max-width:760px){.evictbar{top:120px}}
 .evictbar .actcard{padding:8px 14px 10px}
 @media (max-width:560px){.tmoney2{grid-template-columns:1fr}}
+/* v6.9 radio + turn sound */
+.radiofab{position:fixed;right:12px;bottom:14px;z-index:60;width:52px;height:52px;border-radius:50%;padding:0;margin:0;font-size:24px;display:flex;align-items:center;justify-content:center}
+.radiofab.live{background:var(--yellow)}
+.radiofab.live.on{animation:fabp 1.2s ease-in-out infinite alternate}
+@keyframes fabp{to{transform:scale(1.08)}}
+.radio{position:fixed;right:12px;bottom:76px;z-index:61;width:min(340px,92vw);background:var(--cream);border:3px solid var(--ink);border-radius:18px;box-shadow:var(--sh2);padding:10px 12px 12px;transform:translateX(130%);transition:transform .25s}
+.radio.open{transform:none}
+.radio:not(.open).hasplayer .rplayer{position:fixed;left:-9999px}
+.rhd{display:flex;justify-content:space-between;align-items:center}
+.rhd b{font-family:'Bangers',cursive;font-weight:400;letter-spacing:1px;font-size:22px}
+.rhd .dx{margin:0}
+.rsec{margin-top:8px}
+.rsec>label{display:block;font-weight:800;font-size:14px;margin-bottom:4px}
+.rrow{display:flex;gap:6px;align-items:center;margin-top:6px}
+.rrow select,.rrow input[type=url]{flex:1;min-width:0}
+.rrow button{margin:0;padding:6px 10px;font-size:14px;white-space:nowrap}
+.rrow input[type=range]{flex:1;width:auto;border:0;padding:0}
+.rmuted{margin:0;font-size:13px;font-weight:600;opacity:.75}
+.rplayer{margin-top:8px;border-radius:10px;overflow:hidden;border:2px solid var(--ink);background:#000;display:none}
+.radio.hasplayer .rplayer{display:block}
+.rplayer iframe{display:block;width:100%;height:124px}
+@media (max-width:760px){.radiofab{bottom:auto;top:74px;right:auto;left:8px;width:44px;height:44px;font-size:20px}.radio{bottom:auto;top:124px;right:8px}}
 </style>
 </head>
 <body>
@@ -2021,6 +2043,18 @@ var BL = (function () {
       if (!who || !txt) return false;
       S.chat.push({ id: uid(), name: who.name, color: who.color, text: txt, t: now });
       if (S.chat.length > 50) S.chat.splice(0, S.chat.length - 50);
+      return true;
+    }
+    if (type === 'music') {
+      if (!(cid === S.hostCid || S.local)) return false;
+      if (it.off) { if (!S.music) return false; S.music = null; log(S, '🔇 A rádio foi desligada.'); return true; }
+      var vid = str(it.vid, 20), list = str(it.list, 80);
+      if (vid && !/^[A-Za-z0-9_-]{11}$/.test(vid)) return false;
+      if (list && !/^[A-Za-z0-9_-]{10,80}$/.test(list)) return false;
+      if (!vid && !list) return false;
+      S.music = { id: uid(), vid: vid || '', list: list || '', at: now };
+      var hs = seatByCid(S, cid);
+      log(S, '🎵 ' + (hs ? hs.name : 'O dono da sala') + ' ligou a rádio. Toque em "🎵 Rádio" pra ouvir junto com a galera.');
       return true;
     }
     if (S.phase === 'lobby') return applyLobby(S, cid, it, now);
@@ -5417,6 +5451,175 @@ evType = function(t){
 
 var _ut7 = updateTimers;
 updateTimers = function(){ _ut7.apply(this, arguments); var V = view(); var gt = $('#gtimer'); if (gt && V && V.phase === 'game' && !V.endsAt){ gt.textContent = '∞'; var tw = $('#tower'); if (tw) tw.classList.remove('low'); } };
+// ---- v6.9: your-turn sound (client only) + shared YouTube radio ----
+var TURN_SNDS = { campainha: 'Campainha', buzina: 'Buzina de Kombi', trombeta: 'Trombeta', apito: 'Apito de juiz', off: 'Sem som' };
+function turnSound(kind, force){
+  kind = kind || ls('bl_turnsnd') || 'campainha';
+  if (kind === 'off') return;
+  if (!force && (!SFX.on)) return;
+  var c = audio(); if (!c || c.state !== 'running') return;
+  try {
+    if (kind === 'campainha'){ tone(988, 0.35, 'sine', 0.25); tone(784, 0.6, 'sine', 0.25, 0.35); }
+    else if (kind === 'buzina'){ tone(330, 0.18, 'square', 0.12); tone(330, 0.35, 'square', 0.12, 0.25); }
+    else if (kind === 'trombeta'){ [523, 659, 784, 1047].forEach(function(f, i){ tone(f, i === 3 ? 0.5 : 0.12, 'sawtooth', 0.08, i * 0.13); }); }
+    else if (kind === 'apito'){ tone(2200, 0.12, 'square', 0.06); tone(2200, 0.5, 'square', 0.06, 0.18, 2350); }
+  } catch(e){}
+}
+var lastTurnKey = '';
+function checkMyTurn(V){
+  var M = me();
+  if (!V || V.phase !== 'game' || !M || M.ghost || !V.pending || V.pending.kind !== 'roll' || V.turn !== M.i || presenting) return;
+  var key = V.startedAt + '-' + V.round + '-' + V.turn;
+  if (key === lastTurnKey) return;
+  lastTurnKey = key;
+  turnSound();
+  try { if (navigator.vibrate && ls('bl_turnsnd') !== 'off') navigator.vibrate([120, 60, 120]); } catch(e){}
+  if (N.mode === 'online') banner('🎲 Sua vez, ' + M.name + '!');
+}
+
+// radio
+var RADIO = { joined: ls('bl_radio_on') === '1', vol: Number(ls('bl_radio_vol') || 60), player: null, ready: false, musicId: null, tick: null, apiLoading: false, open: false, lastSent: 0 };
+function amHostRadio(){ return N.mode === 'local' || N.isHost; }
+function parseYT(u){
+  u = String(u || '').trim(); if (!u) return null;
+  var vid = '', list = '';
+  try {
+    var x = new URL(/^https?:/i.test(u) ? u : 'https://' + u);
+    var h = x.hostname.replace(/^www\.|^m\.|^music\./, '');
+    if (h === 'youtu.be') vid = x.pathname.slice(1, 12);
+    else if (/youtube\.com$/.test(h)){
+      vid = x.searchParams.get('v') || '';
+      var m = x.pathname.match(/^\/(?:shorts|embed|live)\/([A-Za-z0-9_-]{11})/); if (m) vid = m[1];
+      list = x.searchParams.get('list') || '';
+    } else return null;
+  } catch(e){ if (/^[A-Za-z0-9_-]{11}$/.test(u)) vid = u; else return null; }
+  if (vid && !/^[A-Za-z0-9_-]{11}$/.test(vid)) vid = '';
+  if (list && !/^[A-Za-z0-9_-]{10,80}$/.test(list)) list = '';
+  if (/^RD/.test(list) && !vid) list = '';
+  return (vid || list) ? { vid: vid, list: list } : null;
+}
+function loadYTApi(cb){
+  if (window.YT && window.YT.Player){ cb(); return; }
+  var prev = window.onYouTubeIframeAPIReady;
+  window.onYouTubeIframeAPIReady = function(){ if (prev) try { prev(); } catch(e){} cb(); };
+  if (!RADIO.apiLoading){ RADIO.apiLoading = true; var s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; s.async = true; document.head.appendChild(s); }
+}
+function radioShell(){
+  var r = $('#radio');
+  if (!r){ r = document.createElement('div'); r.id = 'radio'; r.className = 'radio'; r.innerHTML = '<div class="rpanel" id="rpanel"></div><div class="rplayer"><div id="ytp"></div></div>'; document.body.appendChild(r); }
+  var f = $('#radioFab');
+  if (!f){ f = document.createElement('button'); f.id = 'radioFab'; f.className = 'radiofab'; f.dataset.act = 'radioToggle'; f.setAttribute('aria-label', 'Som e música'); f.textContent = '🎵'; document.body.appendChild(f); }
+  return r;
+}
+function destroyPlayer(){ try { if (RADIO.player) RADIO.player.destroy(); } catch(e){} RADIO.player = null; RADIO.ready = false; var r = $('.rplayer'); if (r) r.innerHTML = '<div id="ytp"></div>'; }
+function ensurePlayer(M){
+  if (!M) return;
+  var need = RADIO.joined || amHostRadio();
+  if (!need) return;
+  if (RADIO.player && RADIO.musicId === M.id) return;
+  destroyPlayer(); RADIO.musicId = M.id;
+  loadYTApi(function(){
+    if (RADIO.musicId !== M.id || RADIO.player) return;
+    var vars = { playsinline: 1, rel: 0, autoplay: 1, controls: 1 };
+    if (M.list){ vars.listType = 'playlist'; vars.list = M.list; }
+    RADIO.player = new YT.Player('ytp', {
+      width: '220', height: '124', videoId: M.vid || undefined, playerVars: vars,
+      events: {
+        onReady: function(){ RADIO.ready = true; applyVol(); if (!RADIO.joined) try { RADIO.player.mute(); } catch(e){} try { RADIO.player.playVideo(); } catch(e){} setTimeout(alignRadio, 1500); },
+        onError: function(){ if (amHostRadio()) try { RADIO.player.nextVideo(); } catch(e){} },
+        onStateChange: function(e){ if (e.data === 0 && !M.list && amHostRadio()) try { RADIO.player.seekTo(0, true); RADIO.player.playVideo(); } catch(x){} }
+      }
+    });
+  });
+}
+function applyVol(){ if (!RADIO.player || !RADIO.ready) return; try { RADIO.player.setVolume(RADIO.vol); if (RADIO.joined) RADIO.player.unMute(); else RADIO.player.mute(); } catch(e){} }
+function alignRadio(){
+  var P = RADIO.player, T = RADIO.tick;
+  if (!P || !RADIO.ready || !T || amHostRadio() || !RADIO.joined) return;
+  try {
+    var target = T.pos + (Date.now() - T.got) / 1000;
+    var idx = typeof P.getPlaylistIndex === 'function' ? P.getPlaylistIndex() : -1;
+    if (T.idx >= 0 && idx >= 0 && idx !== T.idx){ P.playVideoAt(T.idx); setTimeout(function(){ try { P.seekTo(T.pos + (Date.now() - T.got) / 1000, true); } catch(e){} }, 1500); return; }
+    var cur = P.getCurrentTime ? P.getCurrentTime() : 0;
+    if (Math.abs(cur - target) > 2.5) P.seekTo(target, true);
+    if (P.getPlayerState && P.getPlayerState() !== 1) P.playVideo();
+  } catch(e){}
+}
+function hostTick(){
+  var V = N.view; if (!V || !V.music || !amHostRadio() || N.mode !== 'online' || !N.sub) return;
+  var P = RADIO.player; if (!P || !RADIO.ready) return;
+  try {
+    var m = { code: N.code, id: 'm' + Date.now(), music: { mid: V.music.id, idx: P.getPlaylistIndex ? P.getPlaylistIndex() : -1, pos: P.getCurrentTime ? P.getCurrentTime() : 0 } };
+    var r = N.sub.emit('fx', m); if (r && r.catch) r.catch(function(){});
+  } catch(e){}
+}
+setInterval(hostTick, 4000);
+setInterval(alignRadio, 5000);
+var _pr8 = playReact;
+playReact = function(m){
+  if (m && m.music){ var V = N.view; if (V && V.music && m.music.mid === V.music.id){ RADIO.tick = { idx: m.music.idx, pos: m.music.pos, got: Date.now() }; } return; }
+  return _pr8.apply(this, arguments);
+};
+function renderRadio(){
+  var V = N.view, inGame = N.mode !== 'none' && V;
+  var r = radioShell(), fab = $('#radioFab');
+  fab.classList.toggle('hidden', !inGame);
+  fab.classList.toggle('live', !!(V && V.music));
+  fab.classList.toggle('on', !!(V && V.music && RADIO.joined));
+  if (!inGame){ r.classList.remove('open'); destroyPlayer(); RADIO.musicId = null; return; }
+  var M = V.music;
+  if (!M){ if (RADIO.player) destroyPlayer(); RADIO.musicId = null; }
+  else ensurePlayer(M);
+  r.classList.toggle('open', RADIO.open);
+  r.classList.toggle('hasplayer', !!M && (RADIO.joined || amHostRadio()));
+  var cur = ls('bl_turnsnd') || 'campainha';
+  var h = '<div class="rhd"><b>🎵 Som e música</b><button class="dx" data-act="radioToggle" aria-label="Fechar">✕</button></div>' +
+    '<div class="rsec"><label for="turnSnd">Som da sua vez (só você escuta)</label><div class="rrow"><select id="turnSnd">' + Object.keys(TURN_SNDS).map(function(k){ return '<option value="' + k + '"' + (k === cur ? ' selected' : '') + '>' + TURN_SNDS[k] + '</option>'; }).join('') + '</select><button data-act="turnTest">Testar</button></div></div>' +
+    '<div class="rsec"><label>Rádio da sala</label>';
+  if (M){
+    h += '<p class="rmuted">' + (M.list ? 'Playlist do YouTube tocando pra todo mundo.' : 'Vídeo do YouTube tocando pra todo mundo.') + '</p>' +
+      '<div class="rrow"><button class="' + (RADIO.joined ? '' : 'go') + '" data-act="radioJoin">' + (RADIO.joined ? '🔇 Parar de ouvir' : '🎧 Ouvir junto') + '</button>' +
+      '<input id="radioVol" type="range" min="0" max="100" value="' + RADIO.vol + '" aria-label="Volume da música"></div>';
+  } else h += '<p class="rmuted">' + (amHostRadio() ? 'Nenhuma música tocando.' : 'Nenhuma música tocando. Só quem criou a sala escolhe a música.') + '</p>';
+  if (amHostRadio()){
+    h += '<div class="rrow"><input id="radioUrl" type="url" placeholder="Cole o link do YouTube (vídeo ou playlist)" value=""><button class="go" data-act="radioSet">Tocar</button></div>' +
+      (M ? '<div class="rrow"><button data-act="radioNext">⏭ Pular música</button><button class="bad" data-act="radioOff">Desligar rádio</button></div>' : '') +
+      '<p class="err" id="radioErr"></p>';
+  }
+  h += '</div>';
+  var pnl = $('#rpanel'), keep = document.activeElement && document.activeElement.id === 'radioUrl' ? $('#radioUrl').value : null;
+  if (pnl._h !== h){ pnl._h = h; pnl.innerHTML = h; if (keep != null){ var u = $('#radioUrl'); u.value = keep; u.focus(); } }
+}
+var _rn8 = render;
+render = function(){ var x = _rn8.apply(this, arguments); try { renderRadio(); checkMyTurn(view()); } catch(e){} return x; };
+var _ug8 = updateGame;
+updateGame = function(){ _ug8.apply(this, arguments); try { checkMyTurn(view()); } catch(e){} };
+document.addEventListener('change', function(e){
+  if (e.target && e.target.id === 'turnSnd'){ ls('bl_turnsnd', e.target.value); audio(); turnSound(e.target.value, true); }
+});
+document.addEventListener('input', function(e){
+  if (e.target && e.target.id === 'radioVol'){ RADIO.vol = Number(e.target.value) || 0; ls('bl_radio_vol', String(RADIO.vol)); applyVol(); }
+});
+var _da8 = doAct;
+doAct = function(a, d){
+  switch (a){
+    case 'radioToggle': RADIO.open = !RADIO.open; renderRadio(); return;
+    case 'turnTest': audio(); setTimeout(function(){ turnSound(ls('bl_turnsnd') || 'campainha', true); }, 60); return;
+    case 'radioJoin':
+      RADIO.joined = !RADIO.joined; ls('bl_radio_on', RADIO.joined ? '1' : '0');
+      var V = N.view; if (V && V.music){ ensurePlayer(V.music); if (RADIO.player && RADIO.ready){ applyVol(); try { RADIO.player.playVideo(); } catch(e){} setTimeout(alignRadio, 800); } }
+      renderRadio(); return;
+    case 'radioSet':
+      var p = parseYT(($('#radioUrl') || {}).value);
+      if (!p){ var er = $('#radioErr'); if (er) er.textContent = 'Não reconheci esse link. Use um link do YouTube de vídeo ou de playlist.'; return; }
+      RADIO.joined = true; ls('bl_radio_on', '1');
+      act({ type: 'music', vid: p.vid, list: p.list }); return;
+    case 'radioOff': act({ type: 'music', off: true }); return;
+    case 'radioNext': try { if (RADIO.player) RADIO.player.nextVideo(); setTimeout(hostTick, 1500); } catch(e){} return;
+  }
+  return _da8(a, d);
+};
+
 if (location.hash === '#debug') window.__bl = { N: N, BL: BL, refresh: function(){ N.view = BL.publicState(N.S); render(); }, x: function(f){ return eval(f); } };
 render();
 })();
