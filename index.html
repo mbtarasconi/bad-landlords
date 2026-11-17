@@ -923,6 +923,66 @@ body.vis-hc .g2 .board{background:#5E9E44}
 body.vis-hc .g2 #evbox.on,body.vis-hc .dock.hasmodal{background:rgba(0,0,0,.65)}
 @media (max-width:760px){.turnstrip b{font-size:30px}.tsav{width:44px;height:44px}.tslab{font-size:22px}}
 @media (prefers-reduced-motion:reduce){.turnstrip{animation-duration:.01s}.g2 .tile.painting,.g2 .tile.building{animation:none}}
+/* v7.2 table, props, phone, cigarette */
+main.g2.withtable{background:#6B4426}
+.g2.withtable ~ .sky, main.g2.withtable .sky{display:none}
+.table{position:absolute;left:-1500px;top:-1700px;width:4600px;height:4400px;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.06) 0 3px,transparent 3px 140px),
+  repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),
+  linear-gradient(180deg,#8A5A34,#7A4C2A 50%,#8A5A34)}
+.g2 #cam .board{position:relative;z-index:1}
+.tstain{position:absolute;border-radius:50%;border:16px solid rgba(60,30,10,.35)}
+.tstain.s1{left:1060px;top:3480px;width:190px;height:190px}
+.tstain.s2{left:4040px;top:1500px;width:150px;height:150px;border-width:12px;opacity:.7}
+.tprop{position:absolute;pointer-events:none}
+.boleto{left:1150px;top:2350px;width:230px;height:290px;background:#F4F1E8;border:4px solid #241F2B;border-radius:6px;transform:rotate(-14deg);padding:20px;box-shadow:6px 8px 0 rgba(0,0,0,.25)}
+.boleto b{display:block;font:900 34px system-ui;text-align:center;color:#241F2B}
+.boleto i{display:block;height:8px;background:#B9B2A6;margin:16px 0;border-radius:4px}
+.boleto em{position:absolute;left:20px;right:20px;bottom:24px;border:5px solid #E53935;color:#E53935;font:900 30px system-ui;font-style:normal;text-align:center;transform:rotate(-8deg)}
+.boleto.b2{left:3300px;top:3300px;width:200px;height:170px;transform:rotate(24deg);border-radius:40% 20% 35% 25%;background:#ECE6D8}
+.notes{left:3330px;top:1680px;width:260px;height:120px;background:#9FD58A;border:4px solid #241F2B;border-radius:8px;transform:rotate(10deg);display:flex;align-items:center;justify-content:center;box-shadow:5px 6px 0 rgba(0,0,0,.25)}
+.notes span{font:900 36px system-ui;color:#1F7A4D}
+.notes.n2{left:3360px;top:1760px;transform:rotate(-18deg);background:#B7E3A6}
+.beer{left:1100px;top:1500px;width:150px;height:220px;background:linear-gradient(#FFF8E1 0 18%,#F2B632 18%);border:5px solid #241F2B;border-radius:6px 6px 34px 34px;box-shadow:8px 10px 0 rgba(0,0,0,.2)}
+.beer i{position:absolute;width:12px;height:12px;border-radius:50%;background:#FFF3C4;animation:bubble 2.4s linear infinite}
+.beer i:nth-child(1){left:40px;bottom:30px}.beer i:nth-child(2){left:80px;bottom:60px;animation-delay:.8s}.beer i:nth-child(3){left:100px;bottom:20px;animation-delay:1.6s}
+@keyframes bubble{0%{transform:translateY(0);opacity:1}90%{opacity:1}100%{transform:translateY(-140px);opacity:0}}
+.coffee{left:1170px;top:3060px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,#3B2213 0 52%,#F4F1E8 53% 68%,#241F2B 69% 72%,#F4F1E8 73%);border:5px solid #241F2B;box-shadow:6px 8px 0 rgba(0,0,0,.2)}
+.dicepair{left:3330px;top:2900px}
+.dicepair i{position:absolute;width:80px;height:80px;background:#fff;border:4px solid #241F2B;border-radius:16px;background-image:radial-gradient(circle,#241F2B 9px,transparent 10px);background-size:80px 80px;box-shadow:4px 6px 0 rgba(0,0,0,.25)}
+.dicepair i:first-child{transform:rotate(18deg)}.dicepair i:last-child{left:100px;top:30px;transform:rotate(-12deg);background-image:radial-gradient(circle at 30% 30%,#241F2B 9px,transparent 10px),radial-gradient(circle at 70% 70%,#241F2B 9px,transparent 10px)}
+.ashtray{left:1090px;top:1900px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,#7E8A91 0 55%,#B9C3C9 56%);border:6px solid #241F2B;padding:0;margin:0;pointer-events:auto;cursor:pointer;box-shadow:8px 10px 0 rgba(0,0,0,.25)}
+.ashtray:hover{transform:scale(1.04)}
+.ashtray .ash{position:absolute;left:110px;top:120px;width:40px;height:22px;border-radius:50%;background:#4E585E}
+.ashtray .cig{position:absolute;left:20px;top:90px;width:160px;height:26px;background:linear-gradient(90deg,#E8742A 0 30%,#F1E6D2 30%);border:4px solid #241F2B;border-radius:6px;transform:rotate(-18deg)}
+.ashtray .ember{position:absolute;right:-8px;top:2px;width:14px;height:14px;border-radius:50%;background:#555;transition:background .3s,box-shadow .3s}
+.ashtray.lit .ember{background:#FF5A1F;box-shadow:0 0 18px 8px rgba(255,120,30,.8);animation:ember 1s ease-in-out infinite alternate}
+@keyframes ember{to{box-shadow:0 0 26px 12px rgba(255,90,20,.9)}}
+.ashtray .smoke{position:absolute;left:170px;top:40px;display:none}
+.ashtray.lit .smoke{display:block}
+.ashtray .smoke i{position:absolute;width:40px;height:40px;border-radius:50%;background:rgba(230,230,230,.55);animation:smoke 3s ease-out infinite}
+.ashtray .smoke i:nth-child(2){animation-delay:1s}.ashtray .smoke i:nth-child(3){animation-delay:2s}
+@keyframes smoke{0%{transform:translate(0,0) scale(.4);opacity:.8}100%{transform:translate(30px,-220px) scale(2.4);opacity:0}}
+.phone{left:3300px;top:2150px;width:300px;height:560px;background:#241F2B;border-radius:44px;padding:58px 18px 30px;pointer-events:auto;cursor:pointer;transform:rotate(9deg);box-shadow:10px 14px 0 rgba(0,0,0,.25)}
+.phone.buzz{animation:buzz .08s 7}
+@keyframes buzz{0%{transform:rotate(9deg) translateX(-4px)}50%{transform:rotate(10deg) translateX(4px)}100%{transform:rotate(9deg)}}
+.pnotch{position:absolute;left:50%;top:18px;width:110px;height:22px;margin-left:-55px;background:#000;border-radius:12px}
+.pbadge{position:absolute;right:-14px;top:-14px;min-width:56px;height:56px;border-radius:28px;background:#E53935;border:5px solid #241F2B;color:#fff;font:900 26px system-ui;display:flex;align-items:center;justify-content:center;padding:0 8px}
+.pscr{width:100%;height:100%;border-radius:22px;background:linear-gradient(#3B6E9E,#1E3E5C);overflow:hidden;padding:12px;display:flex;flex-direction:column;gap:10px}
+.pnote{background:rgba(255,255,255,.94);border-radius:16px;padding:10px 12px;color:#241F2B;animation:pnin .5s cubic-bezier(.2,1.4,.4,1)}
+.pnote b{display:block;font:900 20px system-ui}
+.pnote span{display:block;font:600 19px/1.25 system-ui}
+.pnote small{display:block;font:700 14px system-ui;opacity:.55;margin-top:4px}
+@keyframes pnin{from{transform:translateY(-40px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.beer i,.ashtray .smoke i,.ashtray.lit .ember,.phone.buzz{animation:none}}
+@media (max-width:760px){
+  .phone{left:1560px;top:3330px;transform:rotate(-4deg)}
+  .ashtray{left:2700px;top:3360px}
+  .beer{left:2950px;top:1150px}
+  .notes{left:1500px;top:1180px}.notes.n2{left:1620px;top:1220px}
+  .radiofab{top:auto!important;left:auto!important;right:8px;bottom:62px;width:44px;height:44px}
+  .radio{top:auto!important;bottom:112px!important}
+}
 </style>
 </head>
 <body>
@@ -5886,6 +5946,134 @@ doAct = function(a, d){
   if (a === 'visBig'){ VIS.big = !VIS.big; ls('bl_big', VIS.big ? '1' : '0'); applyVis(); var s = $('#visSec'); if (s) s.remove(); renderRadio(); return; }
   if (a === 'visHc'){ VIS.hc = !VIS.hc; ls('bl_hc', VIS.hc ? '1' : '0'); applyVis(); var s2 = $('#visSec'); if (s2) s2.remove(); renderRadio(); return; }
   return _da10(a, d);
+};
+
+// ---- v7.2: table around the board, phone with messages, cigarette, emoji cooldowns ----
+var PHONE_MSGS = [
+  ['Banqueiro Preso', 'E aí, partiu festinha? Eu pago... quando sair.'],
+  ['Banqueiro Preso', 'Manda o Pix que eu devolvo com juros. Confia.'],
+  ['Streamer Careca 🔴 AO VIVO', 'Bora, chat! Assistindo o jogo do mito agora. Cola na live!'],
+  ['Streamer Careca 🔴 AO VIVO', 'Sorteio de skin pra quem falir primeiro. Comenta "F".'],
+  ['Gerente do Banco', 'Sua fatura venceu. Mas tá tranquilo, os juros também estão felizes.'],
+  ['Agiota do Bairro', 'Passei na sua casa. Bonito o portão. Seria uma pena...'],
+  ['Mãe', 'Filho(a), já tomou banho? Sua tia perguntou se você arrumou emprego.'],
+  ['Sogra', 'Arrumei o colchão no chão pra você. Traz o próprio travesseiro.'],
+  ['Ex', 'oi sumido(a) 👀'],
+  ['Ex', 'vi que você tá jogando Monopoly. ainda perdendo tudo né'],
+  ['Primo do Pix', 'Mano, me empresta 50? Te pago dia 30 (de qual mês não sei).'],
+  ['Coach Quântico', 'Você não está falido. Você está em transição patrimonial. 🙏'],
+  ['Grupo da Família', 'Tia Neide enviou uma figurinha de "Bom dia" com cachorro de óculos.'],
+  ['Grupo da Família', 'Tio do Pavê: alguém sabe por que o dólar tá assim? É culpa do governo.'],
+  ['Receita Federal', 'Identificamos movimentações suspeitas em Bad Bucks. Favor comparecer.'],
+  ['Síndico', 'Barulho de dado depois das 22h é multa. Assinado: o Síndico.'],
+  ['Tinder', 'Você tem um novo match! (era um golpe)'],
+  ['Golpe do Pix', 'Olá, aqui é seu filho, troquei de número. Manda B$ 2.000 urgente.'],
+  ['Operadora', 'Você usou 100% da sua franquia. Agora só WhatsApp e tristeza.'],
+  ['Academia', 'Sentimos sua falta! Faz 11 meses. Sua mensalidade não sentiu.'],
+  ['iFood', 'Seu pedido saiu pra entrega. O entregador também desistiu da vida.'],
+  ['Banco', 'Seu limite foi reduzido para B$ 3,50. Boa sorte.'],
+  ['Cartório', 'Seu imóvel tem 14 pendências. Uma delas é você.'],
+  ['Igreja do Bairro', 'O dízimo aceita Bad Bucks. E cartão. E rim.'],
+  ['Bet', 'Você ganhou um bônus! Deposite B$ 500 pra liberar seu bônus de B$ 5.'],
+  ['Corretor de Imóveis', 'Tenho um barraco de frente pro esgoto. Vista privilegiada. Topa?'],
+  ['Médico', 'Seus exames chegaram. Liga pra gente. Mas senta antes.'],
+  ['Chefe', 'Amanhã reunião às 7h. Pode ser rapidinho, 4 horas no máximo.'],
+  ['Juiz de Pequenas Causas', 'Audiência marcada pro dia em que você tiver dinheiro. Ou seja, nunca.'],
+  ['Primo Coach', 'Larga esse jogo e investe no meu curso de day trade. Só 12x de B$ 997.']
+];
+var PHONE_PERSONAL = [
+  ['{a}', 'mano, me empresta B$ 50? te pago quando passar pelo começo'],
+  ['{a}', 'cara, o {b} tá roubando no dado, certeza'],
+  ['{a}', 'se você me vender aquele terreno eu te deixo em paz por 2 rodadas'],
+  ['{a}', 'vou te despejar e vai ser pessoal 😈'],
+  ['Grupo da Família', 'Alguém sabe por que o {a} tá sem dinheiro de novo?'],
+  ['{a}', 'apaga esse cigarro que tá fedendo a falência'],
+  ['Mãe do {a}', 'Para de tirar dinheiro dos seus amigos, {a}.']
+];
+var PH = { i: 0, timer: null, seq: [] };
+function phonePick(){
+  var V = view(), names = V && V.players ? V.players.map(function(p){ return p.name; }) : [];
+  if (names.length >= 2 && Math.random() < 0.35){
+    var t = PHONE_PERSONAL[Math.floor(Math.random() * PHONE_PERSONAL.length)];
+    var a = names[Math.floor(Math.random() * names.length)], b = names.filter(function(n){ return n !== a; })[0] || a;
+    return [t[0].replace('{a}', a).replace('{b}', b), t[1].replace(/\{a\}/g, a).replace(/\{b\}/g, b)];
+  }
+  if (!PH.seq.length) PH.seq = PHONE_MSGS.slice().sort(function(){ return Math.random() - 0.5; });
+  return PH.seq.pop();
+}
+function phoneNext(){
+  var scr = $('#phoneScr'); if (!scr){ return; }
+  var m = phonePick();
+  var now = new Date(); var hh = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+  var n = document.createElement('div'); n.className = 'pnote';
+  n.innerHTML = '<b>' + esc(m[0]) + '</b><span>' + esc(m[1]) + '</span><small>' + hh + '</small>';
+  scr.insertBefore(n, scr.firstChild);
+  $$('.pnote', scr).forEach(function(x, k){ if (k > 2) x.remove(); });
+  var badge = $('#phoneBadge'); if (badge){ badge.textContent = String(10 + Math.floor(Math.random() * 90)); }
+  var ph = $('#phone'); if (ph){ ph.classList.remove('buzz'); void ph.offsetWidth; ph.classList.add('buzz'); }
+}
+function tableHTML(){
+  return '<div class="table" aria-hidden="true"><i class="tstain s1"></i><i class="tstain s2"></i>' +
+    '<div class="tprop boleto"><b>BOLETO</b><i></i><i></i><i></i><em>VENCIDO</em></div>' +
+    '<div class="tprop boleto b2"><i></i><i></i></div>' +
+    '<div class="tprop notes"><span>B$ 100</span></div><div class="tprop notes n2"><span>B$ 50</span></div>' +
+    '<div class="tprop beer"><i></i><i></i><i></i></div>' +
+    '<div class="tprop coffee"></div>' +
+    '<div class="tprop dicepair"><i></i><i></i></div>' +
+    '<button class="tprop ashtray" data-act="cig" aria-label="Acender ou apagar o cigarro"><span class="cig"><i class="ember"></i></span><span class="smoke"><i></i><i></i><i></i></span><span class="ash"></span></button>' +
+    '<div class="tprop phone" id="phone" data-act="phoneNext" role="button" aria-label="Celular: próxima mensagem"><span class="pbadge" id="phoneBadge">99</span><div class="pnotch"></div><div class="pscr" id="phoneScr"></div></div>' +
+    '</div>';
+}
+var _bg11 = buildGame;
+buildGame = function(){
+  _bg11.apply(this, arguments);
+  var cam = $('#cam');
+  if (cam && !$('.table', cam)){ cam.insertAdjacentHTML('afterbegin', tableHTML()); }
+  $('main.g2').classList.add('withtable');
+  clearInterval(PH.timer); PH.seq = [];
+  setTimeout(phoneNext, 1500); setTimeout(phoneNext, 2500);
+  PH.timer = setInterval(function(){ if (screen === 'game' && $('#phone')) phoneNext(); else clearInterval(PH.timer); }, 9000);
+  setCig(CIG.on, true);
+};
+// cigarette, shared through the room with a cooldown
+var CIG = { on: true, cool: 0, last: 0 };
+function setCig(on, quiet, who){
+  CIG.on = on;
+  var a = $('.ashtray'); if (a) a.classList.toggle('lit', !!on);
+  if (!quiet){ sfx(on ? 'pop' : 'splat'); if (who) toast((on ? '🔥 ' : '💨 ') + who + (on ? ' acendeu o cigarro.' : ' apagou o cigarro.')); }
+}
+var _pr12 = playReact;
+playReact = function(m){
+  if (m && m.cig != null){
+    if (Date.now() - CIG.last < 2500) return;
+    CIG.last = Date.now(); setCig(!!m.cig, false, m.from || ''); return;
+  }
+  if (m && (m.e || m.taunt)){
+    var k = (m.from || '') + (m.e ? 'e' : 't'); RL[k] = RL[k] || 0;
+    if (Date.now() - RL[k] < 900) return; RL[k] = Date.now();
+  }
+  return _pr12.apply(this, arguments);
+};
+var RL = {};
+var reactCool = 0;
+var _sr12 = sendReact;
+sendReact = function(e){
+  if (Date.now() < reactCool){ toast('Calma! Espere ' + Math.ceil((reactCool - Date.now()) / 1000) + 's pra mandar outro emoji.'); return; }
+  reactCool = Date.now() + 2000;
+  return _sr12.apply(this, arguments);
+};
+var _da12 = doAct;
+doAct = function(a, d){
+  if (a === 'phoneNext'){ phoneNext(); return; }
+  if (a === 'cig'){
+    if (Date.now() < CIG.cool){ toast('O cigarro tá esfriando. Espera ' + Math.ceil((CIG.cool - Date.now()) / 1000) + 's.'); return; }
+    CIG.cool = Date.now() + 6000; CIG.last = Date.now();
+    var on = !CIG.on, nm = N.mode === 'local' ? '' : myName;
+    setCig(on, false, nm || 'Alguém');
+    if (N.mode === 'online' && N.sub) try { var r = N.sub.emit('fx', { code: N.code, id: rid(8), cig: on ? 1 : 0, from: nm }); if (r && r.catch) r.catch(function(){}); } catch(e){}
+    return;
+  }
+  return _da12(a, d);
 };
 
 if (location.hash === '#debug') window.__bl = { N: N, BL: BL, refresh: function(){ N.view = BL.publicState(N.S); render(); }, x: function(f){ return eval(f); } };
