@@ -5642,11 +5642,30 @@ doAct = function(a, d){
 
 // ---- v7.0: owner = color + pattern + initial (option C) ----
 function ownerLabels(V){
-  var out = {}, firsts = {};
-  (V.players || []).forEach(function(p){ var f = (p.name || '?').trim().charAt(0).toUpperCase(); firsts[f] = (firsts[f] || 0) + 1; });
-  (V.players || []).forEach(function(p){
-    var n = (p.name || '?').trim(), f = n.charAt(0).toUpperCase();
-    out[p.i] = firsts[f] > 1 ? f + (n.replace(/[^A-Za-zÀ-ú0-9]/g, '').charAt(1) || String(p.i + 1)).toLowerCase() : f;
+  var ps = V.players || [], out = {}, used = {};
+  var clean = function(s){ return String(s || '').trim(); };
+  var cands = function(p){
+    var n = clean(p.name) || '?', words = n.split(/\s+/), f = n.charAt(0).toUpperCase(), rest = n.slice(1).replace(/[^A-Za-zÀ-ú0-9]/g, '').toLowerCase();
+    var c = [f];
+    if (words[1]) c.push(f + words[1].charAt(0).toUpperCase());
+    for (var k = 0; k < rest.length; k++) c.push(f + rest.charAt(k));
+    return c;
+  };
+  var all = ps.map(function(p){ return { p: p, c: cands(p) }; });
+  var count = function(lab){ return all.filter(function(o){ return o.c[0] === lab; }).length; };
+  var norm = function(s){ return clean(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); };
+  all.forEach(function(o){
+    var pick = null;
+    var twins = all.filter(function(x){ return norm(x.p.name) === norm(o.p.name); });
+    if (twins.length > 1){ var n2 = twins.indexOf(o) + 1; while (used[o.c[0] + n2]) n2++; pick = o.c[0] + n2; used[pick] = 1; out[o.p.i] = pick; return; }
+    for (var k = 0; k < o.c.length; k++){
+      var lab = o.c[k];
+      if (used[lab]) continue;
+      if (k === 0 && count(lab) > 1) continue;
+      pick = lab; break;
+    }
+    if (!pick){ var n = 1; while (used[o.c[0] + n]) n++; pick = o.c[0] + n; }
+    used[pick] = 1; out[o.p.i] = pick;
   });
   return out;
 }
