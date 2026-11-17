@@ -963,7 +963,7 @@ main.g2.withtable{background:#6B4426}
 .ashtray .smoke i{position:absolute;width:40px;height:40px;border-radius:50%;background:rgba(230,230,230,.55);animation:smoke 3s ease-out infinite}
 .ashtray .smoke i:nth-child(2){animation-delay:1s}.ashtray .smoke i:nth-child(3){animation-delay:2s}
 @keyframes smoke{0%{transform:translate(0,0) scale(.4);opacity:.8}100%{transform:translate(30px,-220px) scale(2.4);opacity:0}}
-.phone{left:3300px;top:2150px;width:300px;height:560px;background:#241F2B;border-radius:44px;padding:58px 18px 30px;pointer-events:auto;cursor:pointer;transform:rotate(9deg);box-shadow:10px 14px 0 rgba(0,0,0,.25)}
+.phone{left:3300px;top:2150px;width:300px;height:560px;background:#241F2B;border-radius:44px;padding:58px 18px 30px;pointer-events:none;transform:rotate(9deg);box-shadow:10px 14px 0 rgba(0,0,0,.25)}
 .phone.buzz{animation:buzz .08s 7}
 @keyframes buzz{0%{transform:rotate(9deg) translateX(-4px)}50%{transform:rotate(10deg) translateX(4px)}100%{transform:rotate(9deg)}}
 .pnotch{position:absolute;left:50%;top:18px;width:110px;height:22px;margin-left:-55px;background:#000;border-radius:12px}
@@ -5982,7 +5982,7 @@ function tableHTML(){
     '<div class="tprop coffee"></div>' +
     '<div class="tprop dicepair"><i></i><i></i></div>' +
     '<button class="tprop ashtray" data-act="cig" aria-label="Acender ou apagar o cigarro"><span class="cig"><i class="ember"></i></span><span class="smoke"><i></i><i></i><i></i></span><span class="ash"></span></button>' +
-    '<div class="tprop phone" id="phone" data-act="phoneNext" role="button" aria-label="Celular: próxima mensagem"><span class="pbadge" id="phoneBadge">99</span><div class="pnotch"></div><div class="pscr" id="phoneScr"></div></div>' +
+    '<div class="tprop phone" id="phone" aria-hidden="true"><span class="pbadge" id="phoneBadge">99</span><div class="pnotch"></div><div class="pscr" id="phoneScr"></div></div>' +
     '</div>';
 }
 var _bg11 = buildGame;
@@ -5993,7 +5993,7 @@ buildGame = function(){
   $('main.g2').classList.add('withtable');
   clearInterval(PH.timer); PH.seq = [];
   setTimeout(phoneNext, 1500); setTimeout(phoneNext, 2500);
-  PH.timer = setInterval(function(){ if (screen === 'game' && $('#phone')) phoneNext(); else clearInterval(PH.timer); }, 9000);
+  PH.timer = setInterval(function(){ if (screen === 'game' && $('#phone')) phoneNext(); else clearInterval(PH.timer); }, 30000);
   setCig(CIG.on, true);
 };
 // cigarette, shared through the room with a cooldown
@@ -6025,7 +6025,6 @@ sendReact = function(e){
 };
 var _da12 = doAct;
 doAct = function(a, d){
-  if (a === 'phoneNext'){ phoneNext(); return; }
   if (a === 'cig'){
     if (Date.now() < CIG.cool){ toast('O cigarro tá esfriando. Espera ' + Math.ceil((CIG.cool - Date.now()) / 1000) + 's.'); return; }
     CIG.cool = Date.now() + 6000; CIG.last = Date.now();
