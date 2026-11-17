@@ -786,6 +786,42 @@ h2{font-size:30px} h3{font-size:23px}
 .ev-alert .evhd{background:var(--red)}
 @media (max-width:760px){.threats{top:196px;right:6px;max-width:70vw}.thr b{font-size:16px}}
 @media (prefers-reduced-motion:reduce){.g2 .tile.danger,.thr,.alertflash{animation:none}}
+/* v6.7 trades */
+#tradebox .helpbg{position:fixed;inset:0;z-index:94;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:12px}
+.tradecard{position:relative;width:min(640px,96vw);max-height:92vh;overflow:auto;background:var(--cream);border:4px solid var(--ink);border-radius:22px;box-shadow:var(--sh2);padding:14px 16px 16px}
+.tradecard .dx{position:absolute;right:10px;top:10px}
+.tradecard .ach{font-family:'Bangers',cursive;letter-spacing:1px;font-size:28px;text-align:center}
+.tradecard .acp{text-align:center;font-size:15px;font-weight:600;margin:2px 0 8px}
+.tpick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px}
+.tpick button{display:flex;align-items:center;gap:6px;margin:0;padding:4px 10px 4px 4px;border-left:8px solid var(--pc)}
+.tpick button.sel{background:var(--yellow)}
+.tpick small{font-weight:700;opacity:.7;margin-left:4px}
+.tav{width:32px;height:32px;border-radius:50%;overflow:hidden;border:2px solid var(--ink);background:#fff;display:block}
+.tav .pz{width:100%;height:100%;display:block}
+.tcols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tcols>div>b{display:block;font-family:'Bangers',cursive;letter-spacing:1px;font-size:20px;margin-bottom:4px}
+.trow{display:flex;align-items:center;gap:8px;width:100%;text-align:left;margin:0 0 6px;padding:6px 8px;border-radius:12px;border-width:2px;box-shadow:0 3px 0 var(--ink)}
+.trow i{width:10px;align-self:stretch;border-radius:4px;border:2px solid var(--ink);flex:none}
+.trow span{flex:1;min-width:0;font-size:14px;line-height:1.2}
+.trow small{display:block;font-size:12px;font-weight:600;opacity:.7}
+.trow b{font-size:18px}
+.trow.on{background:#EAF8E4}
+.tmoney{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.tmoney input{width:120px}
+.tmoney .chips button{margin:0}
+.tsum{text-align:center;font-weight:800;margin:8px 0 0}
+.tradecard .acb{display:flex;gap:10px;justify-content:center;margin-top:8px}
+.tradecard .acb button{margin:0}
+.toffer{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:start;margin-top:8px}
+.toffer b{font-family:'Bangers',cursive;letter-spacing:1px;font-size:20px}
+.toffer ul{list-style:none;margin:4px 0 0;padding:0}
+.toffer li{font-weight:700;font-size:15px;margin-bottom:6px;line-height:1.25}
+.toffer li i{display:inline-block;width:10px;height:14px;border-radius:3px;border:2px solid var(--ink);margin-right:6px;vertical-align:-2px}
+.toffer li small{display:block;font-weight:600;opacity:.7;margin-left:18px}
+.tarrow{font-size:32px;align-self:center}
+.ibtn.trade{background:var(--yellow)}
+@media (max-width:560px){.tcols{grid-template-columns:1fr}}
+.paper .pnext{text-align:center;font-size:19px;font-weight:800;padding:4px 0;border-bottom:2px solid var(--ink)}
 </style>
 </head>
 <body>
@@ -1386,14 +1422,82 @@ var BL = (function () {
     var n = S.players.length;
     for (var k = 0; k < n * 3; k++) {
       S.turn = (S.turn + 1) % n;
-      if (S.turn === 0) { S.round++; if (S.round % 3 === 0) startNews(S, now); if (S.round % 5 === 4) S.auctionDue = true; else if (S.round > 1 && S.round % 3 === 1) S.duelDue = true; }
+      if (S.turn === 0) { S.round++; if (S.round % 3 === 0) startNews(S, now); if (S.round % 3 === 2) S.duelDue = true; if (S.round % 7 === 0) S.auctionDue = true; }
       var p = cur(S);
       if (!p.ghost && p.skip > 0) { p.skip--; log(S, p.name + ' perdeu a vez (ainda se recuperando).'); continue; }
-      if (S.auctionDue && roundAuction(S, now)) return;
+      p.tradesThisTurn = 0;
       if (S.duelDue && roundDuel(S, now)) return;
+      if (S.auctionDue && roundAuction(S, now)) return;
       beginTurn(S, now); return;
     }
     beginTurn(S, now);
+  }
+  // ---------- trades between players ----------
+  var TRADE_MS = 30000, MAX_TRADES = 2;
+  function tradeValue(S, ids) { return ids.reduce(function (a, i) { return a + tileValue(S.tiles[i]); }, 0); }
+  function cleanIds(S, list, owner) {
+    var out = [];
+    (Array.isArray(list) ? list : []).slice(0, 12).forEach(function (x) { var i = Number(x); var t = S.tiles[i]; if (t && t.owner === owner && (t.type === 'prop' || t.type === 'vice') && out.indexOf(i) < 0) out.push(i); });
+    return out;
+  }
+  function tradeText(S, T) {
+    var A = S.players[T.from], B = S.players[T.to];
+    var names = function (ids) { return ids.map(function (i) { return S.tiles[i].name; }).join(', '); };
+    var a = [], b = [];
+    if (T.give.length) a.push(names(T.give));
+    if (T.pay > 0) a.push(money(T.pay));
+    if (T.take.length) b.push(names(T.take));
+    if (T.pay < 0) b.push(money(-T.pay));
+    return A.name + ' oferece ' + (a.join(' + ') || 'nada') + ' em troca de ' + (b.join(' + ') || 'nada') + ' de ' + B.name;
+  }
+  function offerTrade(S, me, it, now) {
+    var P = S.pending;
+    if (!P || P.kind !== 'roll' || me.i !== S.turn || me.ghost || S.trade) return false;
+    if ((me.tradesThisTurn || 0) >= MAX_TRADES) return false;
+    var to = S.players[Number(it.to)];
+    if (!to || to === me || to.ghost) return false;
+    var give = cleanIds(S, it.give, me.i), take = cleanIds(S, it.take, to.i);
+    var pay = Math.round(Number(it.pay) || 0);
+    pay = clamp(pay, -5000, 5000);
+    if (!give.length && !take.length) return false;
+    if (pay > 0 && me.money < pay) return false;
+    if (pay < 0 && to.money < -pay) return false;
+    me.tradesThisTurn = (me.tradesThisTurn || 0) + 1;
+    S.trade = { id: uid(), from: me.i, to: to.i, give: give, take: take, pay: pay };
+    S.afterTrade = P;
+    S.pending = { kind: 'trade', p: to.i, since: now, id: uid() };
+    log(S, '🤝 PROPOSTA: ' + tradeText(S, S.trade) + '. ' + to.name + ' tem 30 segundos pra decidir.', 'big');
+    return true;
+  }
+  function closeTrade(S, accept, now, why) {
+    var T = S.trade; if (!T) return;
+    var A = S.players[T.from], B = S.players[T.to];
+    var ok = accept && !A.ghost && !B.ghost &&
+      T.give.every(function (i) { return S.tiles[i].owner === A.i; }) && T.take.every(function (i) { return S.tiles[i].owner === B.i; }) &&
+      (T.pay <= 0 || A.money >= T.pay) && (T.pay >= 0 || B.money >= -T.pay);
+    if (ok) {
+      T.give.forEach(function (i) { S.tiles[i].owner = B.i; if (S.fofocaTile === i) S.fofocaTile = -1; });
+      T.take.forEach(function (i) { S.tiles[i].owner = A.i; if (S.fofocaTile === i) S.fofocaTile = -1; });
+      if (T.pay > 0) { A.money -= T.pay; B.money += T.pay; }
+      if (T.pay < 0) { B.money += T.pay; A.money -= T.pay; }
+      log(S, '🤝 NEGÓCIO FECHADO! ' + tradeText(S, T) + '. Aperto de mão suado.', 'good');
+      fx(S, 'confetti', { p: A.i, text: 'Negócio fechado!' });
+    } else if (accept) {
+      log(S, '🤝 O negócio entre ' + A.name + ' e ' + B.name + ' melou: alguém não tinha mais o que prometeu.', 'bad');
+    } else {
+      log(S, '🙅 ' + B.name + ' ' + (why || 'recusou') + ' a proposta de ' + A.name + '.' + pick([' Nem leu direito.', ' Ofendido com a oferta.', ' Disse que ia pensar. Não pensou.', ' Mandou um áudio de 4 minutos recusando.']), 'bad');
+    }
+    S.trade = null;
+    var back = S.afterTrade; S.afterTrade = null;
+    if (checkWin(S, now)) return;
+    if (back) { back.since = now; S.pending = back; } else { S.pending = { kind: 'resolve' }; afterResolve(S, now); }
+  }
+  function botTrade(S, p) {
+    var T = S.trade; if (!T) return { type: 'trade_no' };
+    var get = tradeValue(S, T.give) + Math.max(0, T.pay), lose = tradeValue(S, T.take) + Math.max(0, -T.pay);
+    var danger = (S.threats || []).some(function (th) { return th.p === T.from && T.take.indexOf(th.tile) >= 0; });
+    var completes = T.take.some(function (i) { var t = S.tiles[i]; return t.type === 'prop' && S.groups[t.g].tiles.every(function (j) { return j === i || S.tiles[j].owner === T.from || T.take.indexOf(j) >= 0; }); });
+    return !danger && !completes && get >= lose * 1.2 ? { type: 'trade_yes' } : { type: 'trade_no' };
   }
   function roundDuel(S, now) {
     S.duelDue = false;
@@ -2002,6 +2106,12 @@ var BL = (function () {
       if (Object.keys(S.tribunal.votes).length >= voters) closeTribunal(S, now);
       return true;
     }
+    if (it.type === 'trade_offer') return offerTrade(S, me, it, now);
+    if (P.kind === 'trade') {
+      if (it.type === 'trade_cancel' && S.trade && me.i === S.trade.from) { closeTrade(S, false, now, 'nem chegou a ver; cancelaram'); return true; }
+      if (me.i !== P.p || (it.type !== 'trade_yes' && it.type !== 'trade_no')) return false;
+      closeTrade(S, it.type === 'trade_yes', now); return true;
+    }
     if (P.kind === 'sell') {
       if (me.i !== P.p) return false;
       if (it.type === 'sell') {
@@ -2144,6 +2254,7 @@ var BL = (function () {
       case 'buy': return { type: 'pass' };
       case 'own': return { type: 'relax' };
       case 'sell': return { type: 'sell_auto' };
+      case 'trade': return { type: 'trade_no' };
       case 'takeover': return { type: 'pass' };
       case 'fofoca': var m = S.tiles.filter(function (t) { return t.owner === p.i; }); return { type: 'choose_tile', tile: m.length ? m[0].i : 0 };
       case 'uber': var c; do { c = rnd(40); } while (c === 30); return { type: 'choose_tile', tile: c };
@@ -2165,6 +2276,7 @@ var BL = (function () {
         if (p.sanity < 50) return { type: 'relax' };
         return P.canBuild && p.money - cost > 250 ? { type: 'build' } : { type: 'relax' };
       case 'sell': return { type: 'sell_auto' };
+      case 'trade': return botTrade(S, p);
       case 'takeover': return p.money - P.price > 400 && rnd(3) > 0 ? { type: 'takeover' } : { type: 'pass' };
       case 'fofoca':
         var mine = S.tiles.filter(function (x) { return x.owner === p.i; }).sort(function (a, b) { return rentOf(S, b) - rentOf(S, a); });
@@ -2218,13 +2330,13 @@ var BL = (function () {
       if (S.duel && now >= S.duel.endsAt) { closeDuel(S, now); return true; }
       return changed;
     }
-    var p = P.kind === 'sell' ? S.players[P.p] : cur(S);
+    var p = (P.kind === 'sell' || P.kind === 'trade') ? S.players[P.p] : cur(S);
     if (P.kind !== 'sell' && P.kind !== 'resolve' && debtor(S) && now >= (S.busyUntil || 0)) { startSell(S, debtor(S), now); return true; }
     var intent = null;
     var base = Math.max(P.since, S.busyUntil || 0);
     if (now < base) return changed;
     if (p.bot && now - base > BOT_MS) intent = botIntent(S, p, P);
-    else if (now - base > TURN_MS) {
+    else if (now - base > (P.kind === 'trade' ? TRADE_MS : TURN_MS)) {
       intent = defaultIntent(S, p, P);
       log(S, '⏰ ' + p.name + ' demorou demais. O jogo decidiu por ele.');
     }
@@ -2253,7 +2365,7 @@ var BL = (function () {
     rentOf: rentOf, tileValue: tileValue, buildCost: buildCost, patrimony: patrimony, groupComplete: groupComplete,
     PIECES: PIECES, COLORS: COLORS, TAGS: TAGS, CURSES: CURSES, pieceOf: pieceOf, curseById: curseById,
     TURN_MS: TURN_MS, STEP_MS: STEP_MS, PASS_MS: PASS_MS, AUCTION_MS: AUCTION_MS,
-    priceOf: priceOf, buildCostOf: buildCostOf, newsActive: newsActive, DUELS: DUELS, JAIL_FEE: JAIL_FEE, UBER_FARE: UBER_FARE, CUR: CUR, WIN_TEXT: WIN_TEXT, sellValue: sellValue
+    priceOf: priceOf, buildCostOf: buildCostOf, newsActive: newsActive, DUELS: DUELS, JAIL_FEE: JAIL_FEE, UBER_FARE: UBER_FARE, CUR: CUR, WIN_TEXT: WIN_TEXT, sellValue: sellValue, TRADE_MS: TRADE_MS, MAX_TRADES: MAX_TRADES
   };
 })();
 if (typeof module !== 'undefined') module.exports = BL;
@@ -4570,7 +4682,7 @@ var HELP = [
   ['🎲', 'Sua vez', 'Role os dados e ande. Casa sem dono: compre ou passe. Passar pelo começo dá B$300. Casa de outro: pague aluguel e, se tiver dinheiro, faça uma tomada hostil pagando o dobro.'],
   ['🧠', 'Sua casa e sua sanidade', 'Caiu na sua própria casa: se tiver todos os terrenos da cor, construa um andar (aluguel sobe); ou relaxe pra recuperar sanidade, ou só pule. Se a sanidade zerar, você surta, perde a vez e vende uma casa no desespero.'],
   ['⚖️', 'Casas especiais', 'Sorte ou revés tem cartas feitas com os podres do grupo. Tribunal é votação. Maldição te dá uma carta pra jogar nos outros. Fofoca dobra um aluguel seu. Uber bêbado leva pra qualquer casa. Sogra é a prisão.'],
-  ['📰', 'Caos extra', 'A cada 3 rodadas sai um Plantão da semana que muda as regras e rola um Minigame da rodada entre dois jogadores. De vez em quando o banco faz um Leilão da rodada com um imóvel sem dono. Caiu na mesma casa que alguém? Sempre rola um duelo relâmpago valendo dinheiro.'],
+  ['📰', 'Caos extra', 'A cada 3 rodadas sai um Plantão da semana e rola um Minigame da rodada entre dois jogadores. A cada 7 rodadas o banco faz um Leilão. Na sua vez, antes de rolar, dá pra Negociar imóveis e dinheiro com os outros. Caiu na mesma casa que alguém? Sempre rola um duelo relâmpago valendo dinheiro.'],
   ['👻', 'Fantasma e zoeira', 'Faliu? Vira fantasma e continua assombrando todo mundo. Use o botão Zoeira pra provocar com a sua peça e mandar reações. A qualquer hora, toque no ? pra rever tudo.']
 ];
 var helpIdx = 0;
@@ -4718,7 +4830,7 @@ function renderPaper(V){
   if (pp._k !== pk){
     pp._k = pk;
     pp.innerHTML = '<div class="mast">' + PAPER_NAMES[(V.round || 0) % PAPER_NAMES.length] + '</div>' +
-      '<div class="pdate">Rodada ' + (V.round || 1) + ' · B$ 0,50</div>' +
+      '<div class="pdate">Rodada ' + (V.round || 1) + ' · B$ 0,50</div>' + (function(){ var r = V.round || 1, d = r + 1; while (d % 3 !== 2) d++; var au = r + 1; while (au % 7) au++; return '<div class="pnext">🎮 Minigame na rodada ' + d + ' · 🔨 Leilão na rodada ' + au + '</div>'; })() +
       '<div class="kick' + (n ? ' live' : '') + '">' + kick + '</div>' +
       '<div class="head">' + esc(head) + '</div>' + (sub ? '<div class="psub">' + esc(sub) + '</div>' : '');
     if (pp._seen) { pp.classList.remove('flash'); void pp.offsetWidth; pp.classList.add('flash'); }
@@ -5046,6 +5158,158 @@ evType = function(t){
   if (/só de VISITA/.test(t)) return ['sogra', '👵', 'Só uma visitinha'];
   return _ev5(t);
 };
+// ---- v6.7: walk segments (dice part + card part), trades between players ----
+function walkSeg(p, from, to, dir, jump){
+  return new Promise(function(done){
+    var steps = dir > 0 ? (to - from + 40) % 40 : (from - to + 40) % 40;
+    var tok = $('#tok-' + p.i);
+    if (!steps){ done(); return; }
+    CAM.walkTile = from; applyCam();
+    if (jump || steps > 14){
+      if (tok) tok.classList.add('poof');
+      setTimeout(function(){ tokPos[p.i] = to; CAM.walkTile = to; applyCam(); if (tok) tok.classList.remove('poof'); sfx('pop'); setTimeout(function(){ CAM.walkTile = null; done(); }, 600); }, 400);
+      return;
+    }
+    var k = 0, passed = {};
+    if (tok){ tok.classList.add('walk'); tok.dataset.mood = 'ok'; }
+    (function step(){
+      k++; tokPos[p.i] = ((from + dir * k) % 40 + 40) % 40; CAM.walkTile = tokPos[p.i]; applyCam(); sfx('step');
+      if (tok){ tok.classList.remove('hop'); void tok.offsetWidth; tok.classList.add('hop'); }
+      if (k >= steps){
+        if (tok){ tok.classList.remove('walk', 'hop'); tok.classList.add('land'); setTimeout(function(){ tok.classList.remove('land'); }, 420); }
+        setTimeout(function(){ CAM.walkTile = null; done(); }, 450);
+        return;
+      }
+      var met = overtake(p.i, tokPos[p.i], passed);
+      if (met){ if (tok) tok.classList.remove('walk'); setTimeout(function(){ if (tok) tok.classList.add('walk'); step(); }, BL.STEP_MS + met * BL.PASS_MS); }
+      else setTimeout(step, BL.STEP_MS);
+    })();
+  });
+}
+function walkOne(L, p){
+  var o = SV.players[p.i];
+  var from = tokPos[p.i] != null ? tokPos[p.i] : o.pos;
+  var mf = p.moveFrom;
+  var chain = Promise.resolve();
+  // two moves in one update (dice walk, then a card or Uber moved the piece again): show both legs
+  if (mf != null && mf !== from && mf !== p.pos){
+    chain = chain.then(function(){ return walkSeg(p, from, mf, 1, false); }).then(function(){ return new Promise(function(r){ setTimeout(r, 500); }); });
+    from = mf;
+  }
+  return chain.then(function(){ return walkSeg(p, from, p.pos, p.moveSteps < 0 ? -1 : 1, !p.moveSteps); });
+}
+
+// trades
+var TR = { open: false, to: null, give: {}, take: {}, pay: 0, dir: 'pay' };
+var _wt5 = waitingText;
+waitingText = function(V, P, p){
+  if (P && P.kind === 'trade' && V.trade){ return V.players[V.trade.to].name + ' está decidindo uma proposta de ' + V.players[V.trade.from].name + '.'; }
+  return _wt5.apply(this, arguments);
+};
+function tileRow(t, on, act){
+  var lv = t.type === 'prop' ? LVNAME[t.level || 0] : 'Vício';
+  return '<button class="trow' + (on ? ' on' : '') + '" data-act="' + act + '" data-t="' + t.i + '"><i style="background:' + (t.color || '#5B3F7A') + '"></i><span>' + esc(t.name) + '<small>' + lv + ' · vale ' + bb(BL.tileValue(t)) + '</small></span><b>' + (on ? '✓' : '+') + '</b></button>';
+}
+function canTradeNow(V, M){ return V && M && V.phase === 'game' && V.pending && V.pending.kind === 'roll' && V.turn === M.i && !M.ghost && (M.tradesThisTurn || 0) < BL.MAX_TRADES && !presenting; }
+function renderTradeComposer(){
+  var host = $('#tradebox'); if (!host) return;
+  var V = view(), M = me();
+  if (!TR.open || !canTradeNow(V, M)){ if (TR.open && !(V && V.pending && V.pending.kind === 'trade')) TR.open = false; host.innerHTML = ''; return; }
+  var others = V.players.filter(function(q){ return q.i !== M.i && !q.ghost; });
+  if (TR.to == null || !others.some(function(q){ return q.i === TR.to; })) TR.to = others.length ? others[0].i : null;
+  var O = TR.to != null ? V.players[TR.to] : null;
+  var mine = V.tiles.filter(function(t){ return t.owner === M.i; }), theirs = O ? V.tiles.filter(function(t){ return t.owner === O.i; }) : [];
+  var gv = mine.filter(function(t){ return TR.give[t.i]; }).reduce(function(a, t){ return a + BL.tileValue(t); }, 0);
+  var tv = theirs.filter(function(t){ return TR.take[t.i]; }).reduce(function(a, t){ return a + BL.tileValue(t); }, 0);
+  var amt = Math.max(0, Math.round(TR.pay || 0));
+  var h = '<div class="helpbg"><div class="tradecard" role="dialog" aria-label="Negociar"><button class="dx" data-act="tradeClose" aria-label="Fechar">✕</button>' +
+    '<div class="ach">🤝 Negociar</div><p class="acp">Monte a proposta. A outra pessoa tem 30 segundos pra aceitar. Você pode fazer até ' + BL.MAX_TRADES + ' propostas por vez.</p>' +
+    '<div class="tpick">' + others.map(function(q){ return '<button class="' + (q.i === TR.to ? 'sel' : '') + '" data-act="tradeTo" data-p="' + q.i + '" style="--pc:' + q.color + '"><span class="tav">' + headSVG(q.piece) + '</span>' + esc(q.name) + '<small>' + bb(q.money) + '</small></button>'; }).join('') + '</div>' +
+    '<div class="tcols"><div><b>Você dá</b>' + (mine.length ? mine.map(function(t){ return tileRow(t, TR.give[t.i], 'tradeGive'); }).join('') : '<p class="muted">Você não tem imóveis.</p>') + '</div>' +
+    '<div><b>Você recebe' + (O ? ' de ' + esc(O.name) : '') + '</b>' + (theirs.length ? theirs.map(function(t){ return tileRow(t, TR.take[t.i], 'tradeTake'); }).join('') : '<p class="muted">Não tem imóveis.</p>') + '</div></div>' +
+    '<div class="tmoney"><div class="chips"><button class="' + (TR.dir === 'pay' ? 'sel' : '') + '" data-act="tradeDir" data-d="pay">Eu pago</button><button class="' + (TR.dir === 'get' ? 'sel' : '') + '" data-act="tradeDir" data-d="get">Eu recebo</button></div>' +
+    '<input id="tradeAmt" type="number" min="0" step="10" value="' + amt + '" aria-label="Valor em dinheiro"><span>em dinheiro</span></div>' +
+    '<p class="tsum">Você dá ' + bb(gv + (TR.dir === 'pay' ? amt : 0)) + ' · recebe ' + bb(tv + (TR.dir === 'get' ? amt : 0)) + '</p>' +
+    '<p class="err" id="tradeErr"></p><div class="acb"><button data-act="tradeClose">Cancelar</button><button class="go" data-act="tradeSend">Enviar proposta</button></div></div></div>';
+  if (host._h !== h){ host._h = h; var a = document.activeElement && document.activeElement.id === 'tradeAmt'; host.innerHTML = h; if (a){ var inp = $('#tradeAmt'); inp.focus(); var v = inp.value; inp.value = ''; inp.value = v; } }
+}
+function tradeOfferHTML(V, M){
+  var T = V.trade, A = V.players[T.from], B = V.players[T.to];
+  var list = function(ids){ return ids.map(function(i){ var t = V.tiles[i]; return '<li><i style="background:' + (t.color || '#5B3F7A') + '"></i>' + esc(t.name) + ' <small>(' + (t.type === 'prop' ? LVNAME[t.level || 0] : 'Vício') + ', vale ' + bb(BL.tileValue(t)) + ')</small></li>'; }).join(''); };
+  var gives = list(T.give) + (T.pay > 0 ? '<li>💰 ' + bb(T.pay) + '</li>' : ''), takes = list(T.take) + (T.pay < 0 ? '<li>💰 ' + bb(-T.pay) + '</li>' : '');
+  var target = N.mode === 'local' || (M && M.i === B.i), proposer = M && M.i === A.i && N.mode !== 'local';
+  var h = '<div class="ach">🤝 Proposta de negócio</div>' +
+    '<div class="toffer"><div><b>' + esc(A.name) + ' dá</b><ul>' + (gives || '<li>nada</li>') + '</ul></div><div class="tarrow">⇄</div><div><b>' + esc(B.name) + ' dá</b><ul>' + (takes || '<li>nada</li>') + '</ul></div></div>';
+  if (target) h += '<p class="acp">' + esc(B.name) + ', aceita?</p><div class="acb"><button class="bad" data-act="tradeNo">Recusar</button><button class="go" data-act="tradeYes">Aceitar</button></div>';
+  else if (proposer) h += '<p class="acp">Esperando ' + esc(B.name) + ' responder…</p><div class="acb"><button data-act="tradeCancel">Cancelar proposta</button></div>';
+  else h += '<p class="acp">Esperando ' + esc(B.name) + ' responder…</p>';
+  return h + '<div class="tbar" id="tbar"><i></i></div>';
+}
+var _ra6 = renderAction0;
+renderAction0 = function(V){
+  var P = V.pending, box = $('#action');
+  if (!presenting && P && V.phase === 'game' && P.kind === 'trade' && V.trade){
+    var h = tradeOfferHTML(V, me());
+    box.classList.add('modal'); box.classList.remove('hidden');
+    var dk = $('.dock'); if (dk){ dk.classList.add('hasmodal'); dk.classList.remove('pickmode'); }
+    if (box._h !== h){ box._h = h; box.innerHTML = h; }
+    return;
+  }
+  _ra6(V);
+};
+var _da6 = doAct;
+doAct = function(a, d){
+  var V = view(), M = me(), P = V && V.pending;
+  var asT = function(it){ if (N.mode === 'local' && P) it.as = P.p; return it; };
+  switch (a){
+    case 'tradeOpen': TR = { open: true, to: null, give: {}, take: {}, pay: 0, dir: 'pay' }; renderTradeComposer(); return;
+    case 'tradeClose': TR.open = false; renderTradeComposer(); return;
+    case 'tradeTo': TR.to = Number(d.p); TR.take = {}; renderTradeComposer(); return;
+    case 'tradeGive': TR.give[d.t] = !TR.give[d.t]; renderTradeComposer(); return;
+    case 'tradeTake': TR.take[d.t] = !TR.take[d.t]; renderTradeComposer(); return;
+    case 'tradeDir': TR.dir = d.d; renderTradeComposer(); return;
+    case 'tradeSend':
+      var amt = Math.max(0, Math.round(Number(($('#tradeAmt') || {}).value) || 0));
+      var give = Object.keys(TR.give).filter(function(k){ return TR.give[k]; }).map(Number), take = Object.keys(TR.take).filter(function(k){ return TR.take[k]; }).map(Number);
+      var err = '';
+      if (!give.length && !take.length) err = 'Escolha pelo menos um imóvel pra trocar.';
+      else if (TR.dir === 'pay' && amt > M.money) err = 'Você não tem esse dinheiro todo.';
+      else if (TR.dir === 'get' && amt > V.players[TR.to].money) err = V.players[TR.to].name + ' não tem esse dinheiro todo.';
+      if (err){ var e = $('#tradeErr'); if (e) e.textContent = err; return; }
+      act({ type: 'trade_offer', to: TR.to, give: give, take: take, pay: TR.dir === 'pay' ? amt : -amt });
+      TR.open = false; renderTradeComposer(); sfx('pop'); return;
+    case 'tradeYes': act(asT({ type: 'trade_yes' })); sfx('cash'); return;
+    case 'tradeNo': act(asT({ type: 'trade_no' })); return;
+    case 'tradeCancel': act({ type: 'trade_cancel' }); return;
+  }
+  return _da6(a, d);
+};
+var _bg6 = buildGame;
+buildGame = function(){
+  _bg6.apply(this, arguments);
+  var bl = $('.hud-bl');
+  if (bl && !$('#tradeBtn')){ var b = document.createElement('button'); b.id = 'tradeBtn'; b.className = 'ibtn trade hidden'; b.dataset.act = 'tradeOpen'; b.textContent = '🤝 Negociar'; bl.insertBefore(b, bl.firstChild); }
+  var g = $('.g2');
+  if (g && !$('#tradebox')){ var t = document.createElement('div'); t.id = 'tradebox'; g.appendChild(t); }
+};
+var _ug6 = updateGame;
+updateGame = function(){
+  _ug6.apply(this, arguments);
+  try {
+    var V = view(), M = me(), b = $('#tradeBtn');
+    if (b) b.classList.toggle('hidden', !canTradeNow(V, M) || !V.players.some(function(q){ return q.i !== M.i && !q.ghost; }));
+    renderTradeComposer();
+  } catch(e){}
+};
+document.addEventListener('input', function(e){ if (e.target && e.target.id === 'tradeAmt'){ TR.pay = Number(e.target.value) || 0; var V = view(), M = me(); var s = $('.tsum'); if (s && V && M){ renderTradeComposer(); } } });
+var _ev6 = evType;
+evType = function(t){
+  if (/PROPOSTA:/.test(t)) return ['trade', '🤝', 'Proposta de negócio'];
+  if (/NEGÓCIO FECHADO/.test(t)) return ['trade', '🤝', 'Negócio fechado'];
+  if (/proposta de/.test(t)) return ['trade', '🙅', 'Proposta recusada'];
+  return _ev6(t);
+};
+
 if (location.hash === '#debug') window.__bl = { N: N, BL: BL, refresh: function(){ N.view = BL.publicState(N.S); render(); }, x: function(f){ return eval(f); } };
 render();
 })();
