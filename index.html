@@ -872,6 +872,57 @@ h2{font-size:30px} h3{font-size:23px}
 .pchip[data-pat] .av{background:var(--pat)}
 .patlab{position:absolute;right:-7px;bottom:-7px;min-width:22px;height:22px;padding:2px 4px 0;border-radius:11px;background:#fff;border:2.5px solid var(--ink);color:var(--oc);font-family:'Luckiest Guy',cursive;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;-webkit-text-stroke:.6px var(--ink);z-index:2}
 .g2 .ptok[data-pat] .base{background:var(--pat)!important}
+/* v7.1 */
+[data-pat="5"]{--pat:linear-gradient(45deg,transparent 42%,var(--ol) 42% 58%,transparent 58%) 0 0/16px 16px,linear-gradient(-45deg,transparent 42%,var(--ol) 42% 58%,transparent 58%) 0 0/16px 16px,var(--oc)}
+[data-pat="4"]{--pat:radial-gradient(circle at 25% 25%,var(--ol) 2.6px,transparent 3.2px) 0 0/12px 12px,radial-gradient(circle at 75% 75%,var(--ol) 2.6px,transparent 3.2px) 0 0/12px 12px,var(--oc)}
+.g2 .tile .gstripe em{display:block;font-style:normal;font-weight:800;font-size:12px;line-height:17px;color:#fff;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px;text-shadow:0 1px 0 rgba(0,0,0,.6)}
+.g2 .tile.ori-l .gstripe em,.g2 .tile.ori-r .gstripe em{display:none}
+.g2 .tile .nm{font-size:calc(var(--u)*1.35)}
+.pgrp{display:flex;gap:2px;margin-top:3px}
+.gsq{width:11px;height:11px;border-radius:3px;border:1.5px solid var(--ink);background:linear-gradient(to top,var(--gc) var(--f),#fff 0);font-style:normal;font-size:8px;line-height:9px;text-align:center;color:#fff;opacity:.45}
+.gsq.some{opacity:1}
+.gsq.full{box-shadow:0 0 0 2px var(--yellow);font-weight:900;text-shadow:0 0 2px #000}
+.gsq.vic{color:#fff;font-weight:900}
+#turnframe{position:absolute;inset:0;z-index:27;pointer-events:none;padding:8px;background:var(--pat);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);transition:opacity .4s}
+.turnstrip{position:fixed;left:0;right:0;top:42%;z-index:89;pointer-events:none;display:flex;align-items:center;justify-content:center;gap:14px;padding:10px 0;background:var(--pat);border-top:4px solid var(--ink);border-bottom:4px solid var(--ink);animation:stripin 2.3s cubic-bezier(.2,.9,.3,1) forwards}
+.turnstrip b{font-family:'Luckiest Guy',cursive;font-weight:400;font-size:44px;color:#fff;-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:0 4px 0 var(--ink)}
+.tsav{width:62px;height:62px;border-radius:50%;background:#fff;border:4px solid var(--ink);overflow:hidden;display:block}
+.tsav .pz{width:100%;height:100%;display:block}
+.tslab{background:#fff;color:var(--oc);border:3px solid var(--ink);border-radius:12px;padding:4px 10px 0;font-family:'Luckiest Guy',cursive;font-size:30px;-webkit-text-stroke:1px var(--ink)}
+@keyframes stripin{0%{transform:translateX(-110%) skewX(-12deg)}18%{transform:translateX(0) skewX(-6deg)}80%{transform:translateX(0) skewX(-6deg);opacity:1}100%{transform:translateX(110%) skewX(-12deg);opacity:0}}
+.flymoney{position:fixed;z-index:88;pointer-events:none;transform:translate(-50%,-50%);font-family:'Luckiest Guy',cursive;font-size:30px;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:0 3px 0 var(--ink);transition:transform 1.5s cubic-bezier(.2,.8,.3,1),opacity .5s 1.1s}
+.flymoney.neg{color:var(--red)}.flymoney.pos{color:#4CD964}
+.flymoney.go{opacity:0}
+.coin{position:fixed;z-index:87;pointer-events:none;font-size:26px;margin:-13px 0 0 -13px}
+.g2 .tile.painting{animation:paintin 1.2s ease-out}
+@keyframes paintin{0%{clip-path:circle(0% at 50% 60%)}70%{clip-path:circle(80% at 50% 60%)}100%{clip-path:circle(150% at 50% 60%)}}
+.g2 .tile.building{animation:shake .08s 8}
+.tile .dust{position:absolute;inset:0;z-index:7;pointer-events:none}
+.tile .dust span{position:absolute;bottom:30%;width:40%;height:40%;border-radius:50%;background:rgba(200,180,150,.85);animation:dustp 1.4s ease-out forwards}
+.tile .dust span:nth-child(1){left:-5%}.tile .dust span:nth-child(2){left:30%;animation-delay:.1s}.tile .dust span:nth-child(3){left:65%;animation-delay:.2s}
+.tile .dust b{position:absolute;left:50%;top:20%;transform:translateX(-50%) rotate(-8deg);background:var(--yellow);border:3px solid var(--ink);border-radius:8px;padding:0 8px;font-family:'Bangers',cursive;font-size:22px;letter-spacing:1px;animation:powin .4s ease-out}
+@keyframes dustp{0%{transform:scale(.2);opacity:1}100%{transform:scale(1.6) translateY(-30%);opacity:0}}
+.radiofab{font-size:24px}
+.rsec .rrow button.sel{background:var(--yellow)}
+/* 10. visual settings */
+body.vis-big .g2 .tile .nm{font-size:calc(var(--u)*1.6);-webkit-line-clamp:2;line-height:1.05}
+body.vis-big .g2 .tile .price{font-size:calc(var(--u)*1.45)}
+body.vis-big .pn{font-size:18px}body.vis-big .pm{font-size:24px}
+body.vis-big .actcard .acp,body.vis-big .evtx{font-size:20px}
+body.vis-big .actcard .acb button{font-size:21px}
+body.vis-big #narr{font-size:18px!important}
+body.vis-hc{--ink:#000}
+body.vis-hc .g2 .tile{border-width:4px}
+body.vis-hc .g2 .tile:not(.owned){background:#fff}
+body.vis-hc .g2 .tile .nm{color:#000;font-weight:900}
+body.vis-hc .g2 .tile.owned .nm,body.vis-hc .g2 .tile.t-vice .nm,body.vis-hc .g2 .tile.t-chance .nm{color:#fff}
+body.vis-hc .g2 .tile.owned[data-pat] .txt{background:#000}
+body.vis-hc .g2 .tile .own.ownl{border-width:5px;font-size:38px}
+body.vis-hc .pchip,body.vis-hc .actcard,body.vis-hc .ev{border-width:4px}
+body.vis-hc .g2 .board{background:#5E9E44}
+body.vis-hc .g2 #evbox.on,body.vis-hc .dock.hasmodal{background:rgba(0,0,0,.65)}
+@media (max-width:760px){.turnstrip b{font-size:30px}.tsav{width:44px;height:44px}.tslab{font-size:22px}}
+@media (prefers-reduced-motion:reduce){.turnstrip{animation-duration:.01s}.g2 .tile.painting,.g2 .tile.building{animation:none}}
 </style>
 </head>
 <body>
@@ -5696,6 +5747,146 @@ function applyPatterns(V){
 }
 var _ug9 = updateGame;
 updateGame = function(){ _ug9.apply(this, arguments); try { applyPatterns(view()); } catch(e){} };
+
+// ---- v7.1: short tile names, group collection, turn frame, flying money, paint/build fx, visual settings ----
+function shortName(V, t){
+  var n = t.name || '';
+  if (t.type !== 'prop' || !V.groups || !V.groups[t.g]) return n;
+  var c = V.groups[t.g].city || '';
+  if (!c) return n;
+  var esc2 = c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  var s = n.replace(new RegExp('\\s+(de|da|do|em|na|no)\\s+' + esc2 + '$', 'i'), '');
+  return s.length >= 3 ? s : n;
+}
+var _th10 = tileHTML;
+tileHTML = function(V, t){
+  var h = _th10(V, t);
+  if (t.type === 'prop'){
+    var sn = shortName(V, t);
+    if (sn !== t.name) h = h.replace('<div class="nm">' + esc(t.name) + '</div>', '<div class="nm" title="' + esc(t.name) + '">' + esc(sn) + '</div>');
+    var city = V.groups && V.groups[t.g] ? V.groups[t.g].city : '';
+    if (city) h = h.replace(/<i class="gstripe" style="([^"]*)"><\/i>/, '<i class="gstripe" style="$1"><em>' + esc(city) + '</em></i>');
+  }
+  return h;
+};
+
+// 2. group collection per player (color + pattern of the player)
+var _rp10 = renderPlayers;
+renderPlayers = function(V){
+  _rp10.apply(this, arguments);
+  try {
+    if (!V.groups || !V.tiles) return;
+    V.players.forEach(function(p){
+      var ch = $('#pl-' + p.i); if (!ch || p.ghost) return;
+      var sq = V.groups.map(function(g, gi){
+        var have = g.tiles.filter(function(i){ return V.tiles[i].owner === p.i; }).length, tot = g.tiles.length;
+        var full = have === tot;
+        return '<i class="gsq' + (full ? ' full' : '') + (have ? ' some' : '') + '" title="' + esc(g.city) + ': ' + have + ' de ' + tot + '" style="--gc:' + g.color + ';--f:' + Math.round(have / tot * 100) + '%">' + (full ? '★' : '') + '</i>';
+      }).join('');
+      var vic = V.tiles.filter(function(t){ return t.type === 'vice' && t.owner === p.i; }).length;
+      sq += '<i class="gsq vic' + (vic ? ' some' : '') + (vic === 4 ? ' full' : '') + '" title="Vícios: ' + vic + ' de 4" style="--gc:#5B3F7A;--f:' + (vic * 25) + '%">' + (vic ? vic : '') + '</i>';
+      var info = $('.pinfo', ch); if (info){ var d = document.createElement('div'); d.className = 'pgrp'; d.innerHTML = sq; info.appendChild(d); }
+    });
+  } catch(e){}
+};
+
+// 3. turn frame + "Vez do X" strip
+var lastTurnStrip = '';
+function turnFrame(V){
+  var g = $('.g2'); if (!g) return;
+  var fr = $('#turnframe'); if (!fr){ fr = document.createElement('div'); fr.id = 'turnframe'; fr.setAttribute('aria-hidden', 'true'); g.appendChild(fr); }
+  if (!V || V.phase !== 'game' || !V.players[V.turn]){ fr.classList.add('hidden'); return; }
+  var p = V.players[V.turn];
+  fr.classList.remove('hidden'); fr.dataset.pat = String(p.i % 6); fr.style.setProperty('--oc', p.color);
+  var key = V.startedAt + '-' + V.round + '-' + V.turn;
+  if (key !== lastTurnStrip && !presenting){
+    lastTurnStrip = key;
+    var labs = ownerLabels(V);
+    var s = document.createElement('div'); s.className = 'turnstrip'; s.dataset.pat = String(p.i % 6); s.style.setProperty('--oc', p.color);
+    s.innerHTML = '<span class="tsav">' + headSVG(p.piece) + '</span><b>Vez ' + (/a$/i.test(p.name) ? 'da ' : 'do ') + esc(p.name) + '</b><span class="tslab">' + esc(labs[p.i]) + '</span>';
+    document.body.appendChild(s); setTimeout(function(){ s.remove(); }, 2300);
+  }
+}
+
+// 4. flying money between pieces
+var flyPrev = { key: '', m: {} };
+function tokCenter(i){ var t = $('#tok-' + i); if (!t) return null; var r = t.getBoundingClientRect(); if (!r.width) return null; return [r.left + r.width / 2, r.top + r.height * 0.35]; }
+function flyMoney(from, to, amount){
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var a = from != null ? tokCenter(from) : null, b = to != null ? tokCenter(to) : null;
+  if (!a && !b) return;
+  var lab = document.createElement('div'); lab.className = 'flymoney ' + (a ? 'neg' : 'pos'); lab.textContent = (a ? '−' : '+') + bb(amount);
+  var p0 = a || [b[0], b[1] + 40]; lab.style.left = p0[0] + 'px'; lab.style.top = p0[1] + 'px'; document.body.appendChild(lab);
+  setTimeout(function(){ lab.classList.add('go'); lab.style.transform = 'translate(-50%,-140%)'; }, 20);
+  setTimeout(function(){ lab.remove(); }, 1700);
+  if (reduce || !a) return;
+  var n = Math.min(8, 3 + Math.floor(amount / 100));
+  for (var k = 0; k < n; k++) (function(k){
+    var c = document.createElement('div'); c.className = 'coin'; c.textContent = '🪙';
+    c.style.left = a[0] + 'px'; c.style.top = a[1] + 'px'; document.body.appendChild(c);
+    var tx = b ? b[0] - a[0] : (Math.random() - 0.5) * 160, ty = b ? b[1] - a[1] : 120 + Math.random() * 60;
+    setTimeout(function(){ c.style.transition = 'transform ' + (0.7 + k * 0.06) + 's cubic-bezier(.3,-0.4,.5,1), opacity .3s ' + (0.6 + k * 0.06) + 's'; c.style.transform = 'translate(' + tx + 'px,' + ty + 'px) rotate(' + (360 + k * 40) + 'deg)'; c.style.opacity = '0'; }, 60 + k * 70);
+    setTimeout(function(){ c.remove(); if (b && k === n - 1) sfx('cash'); }, 1400 + k * 70);
+  })(k);
+}
+function moneyFx(V){
+  if (!V || V.phase !== 'game' || !V.players) return;
+  var key = String(V.startedAt);
+  var cur = {}; V.players.forEach(function(p){ cur[p.i] = p.money; });
+  if (flyPrev.key !== key){ flyPrev = { key: key, m: cur }; return; }
+  var down = [], up = [];
+  V.players.forEach(function(p){ var d = p.money - (flyPrev.m[p.i] != null ? flyPrev.m[p.i] : p.money); if (d < 0) down.push({ i: p.i, d: -d }); else if (d > 0) up.push({ i: p.i, d: d }); });
+  flyPrev.m = cur;
+  if (!down.length && !up.length) return;
+  if (down.length === 1 && up.length === 1 && Math.abs(down[0].d - up[0].d) <= 1){ flyMoney(down[0].i, up[0].i, down[0].d); return; }
+  down.forEach(function(x){ flyMoney(x.i, null, x.d); });
+  up.forEach(function(x){ flyMoney(null, x.i, x.d); });
+}
+
+// 5. paint on purchase, dust on construction
+var tileMem = { key: '', o: {} };
+function tileFx(V){
+  if (!V || V.phase !== 'game' || !V.tiles) return;
+  var key = String(V.startedAt);
+  var cur = {}; V.tiles.forEach(function(t){ cur[t.i] = [t.owner, t.level || 0]; });
+  if (tileMem.key !== key){ tileMem = { key: key, o: cur }; return; }
+  V.tiles.forEach(function(t){
+    var o = tileMem.o[t.i]; if (!o) return;
+    var el = $('#tile-' + t.i); if (!el) return;
+    if (t.owner >= 0 && t.owner !== o[0]){ el.classList.remove('painting'); void el.offsetWidth; el.classList.add('painting'); setTimeout(function(){ el.classList.remove('painting'); }, 1300); }
+    if ((t.level || 0) > o[1] && t.owner === o[0]){
+      el.classList.remove('building'); void el.offsetWidth; el.classList.add('building'); sfx('thump');
+      var dust = document.createElement('i'); dust.className = 'dust'; dust.innerHTML = '<span></span><span></span><span></span><b>OBRA!</b>'; el.appendChild(dust);
+      setTimeout(function(){ el.classList.remove('building'); dust.remove(); }, 1500);
+    }
+  });
+  tileMem.o = cur;
+}
+var _ug10 = updateGame;
+updateGame = function(){ _ug10.apply(this, arguments); try { var V = view(); turnFrame(V); moneyFx(V); tileFx(V); } catch(e){} };
+
+// 10. visual settings: bigger text, high contrast
+var VIS = { big: ls('bl_big') === '1', hc: ls('bl_hc') === '1' };
+function applyVis(){ document.body.classList.toggle('vis-big', VIS.big); document.body.classList.toggle('vis-hc', VIS.hc); }
+applyVis();
+var _rr10 = renderRadio;
+renderRadio = function(){
+  _rr10.apply(this, arguments);
+  var pnl = $('#rpanel'); if (!pnl) return;
+  var hd = $('.rhd b', pnl); if (hd) hd.textContent = '⚙️ Configurações';
+  if (!$('#visSec', pnl)){
+    var s = document.createElement('div'); s.className = 'rsec'; s.id = 'visSec';
+    s.innerHTML = '<label>Visual (só no seu aparelho)</label><div class="rrow"><button data-act="visBig" class="' + (VIS.big ? 'sel' : '') + '">🔠 Texto maior</button><button data-act="visHc" class="' + (VIS.hc ? 'sel' : '') + '">◐ Alto contraste</button></div>';
+    pnl.appendChild(s); pnl._h = null;
+  }
+  var fab = $('#radioFab'); if (fab){ fab.textContent = '⚙️'; fab.setAttribute('aria-label', 'Configurações: som, música e visual'); }
+};
+var _da10 = doAct;
+doAct = function(a, d){
+  if (a === 'visBig'){ VIS.big = !VIS.big; ls('bl_big', VIS.big ? '1' : '0'); applyVis(); var s = $('#visSec'); if (s) s.remove(); renderRadio(); return; }
+  if (a === 'visHc'){ VIS.hc = !VIS.hc; ls('bl_hc', VIS.hc ? '1' : '0'); applyVis(); var s2 = $('#visSec'); if (s2) s2.remove(); renderRadio(); return; }
+  return _da10(a, d);
+};
 
 if (location.hash === '#debug') window.__bl = { N: N, BL: BL, refresh: function(){ N.view = BL.publicState(N.S); render(); }, x: function(f){ return eval(f); } };
 render();
