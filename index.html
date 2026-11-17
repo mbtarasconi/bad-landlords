@@ -852,6 +852,26 @@ h2{font-size:30px} h3{font-size:23px}
 .radio.hasplayer .rplayer{display:block}
 .rplayer iframe{display:block;width:100%;height:124px}
 @media (max-width:760px){.radiofab{bottom:auto;top:74px;right:auto;left:8px;width:44px;height:44px;font-size:20px}.radio{bottom:auto;top:124px;right:8px}}
+/* v7.0 owner patterns (option C) */
+[data-pat]{--ol:color-mix(in srgb,var(--oc) 58%,#fff)}
+[data-pat="0"]{--pat:repeating-linear-gradient(45deg,var(--oc) 0 9px,var(--ol) 9px 18px)}
+[data-pat="1"]{--pat:radial-gradient(circle,var(--ol) 3.2px,transparent 3.8px) 0 0/14px 14px,var(--oc)}
+[data-pat="2"]{--pat:conic-gradient(var(--oc) 25%,var(--ol) 0 50%,var(--oc) 0 75%,var(--ol) 0) 0 0/20px 20px}
+[data-pat="3"]{--pat:linear-gradient(135deg,var(--ol) 25%,transparent 25%) -9px 0/18px 18px,linear-gradient(225deg,var(--ol) 25%,transparent 25%) -9px 0/18px 18px,linear-gradient(315deg,var(--ol) 25%,transparent 25%) 0 0/18px 18px,linear-gradient(45deg,var(--ol) 25%,transparent 25%) 0 0/18px 18px,var(--oc)}
+[data-pat="4"]{--pat:repeating-linear-gradient(0deg,var(--ol) 0 3px,transparent 3px 14px),repeating-linear-gradient(90deg,var(--ol) 0 3px,transparent 3px 14px),var(--oc)}
+[data-pat="5"]{--pat:repeating-linear-gradient(90deg,var(--oc) 0 8px,var(--ol) 8px 16px)}
+.g2 .tile.owned[data-pat]{background:var(--pat)}
+.g2 .tile.owned[data-pat] .bld{background:transparent;border-bottom:0}
+.g2 .tile.owned[data-pat] .bld:after{background:rgba(36,31,43,.18);border-top:0}
+.g2 .tile.owned[data-pat] .txt{background:color-mix(in srgb,var(--oc) 78%,#241F2B);color:#fff}
+.g2 .tile.owned[data-pat] .nm{text-shadow:0 1px 0 rgba(0,0,0,.45)}
+.g2 .tile.t-vice.owned[data-pat] .bld svg{filter:drop-shadow(0 0 0 transparent)}
+.g2 .tile .own.ownl{width:58px;height:58px;left:5px;top:5px;display:flex;align-items:center;justify-content:center;background:#fff;border:4px solid var(--ink);box-shadow:0 3px 0 var(--ink);color:var(--oc);font-family:'Luckiest Guy',cursive;font-size:34px;line-height:1;padding-top:4px;-webkit-text-stroke:1.5px var(--ink);paint-order:stroke fill}
+.g2 .tile.ori-b .own.ownl{top:24px}
+.g2 .tile.ori-r .own.ownl{left:25px}
+.pchip[data-pat] .av{background:var(--pat)}
+.patlab{position:absolute;right:-7px;bottom:-7px;min-width:22px;height:22px;padding:2px 4px 0;border-radius:11px;background:#fff;border:2.5px solid var(--ink);color:var(--oc);font-family:'Luckiest Guy',cursive;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;-webkit-text-stroke:.6px var(--ink);z-index:2}
+.g2 .ptok[data-pat] .base{background:var(--pat)!important}
 </style>
 </head>
 <body>
@@ -5619,6 +5639,44 @@ doAct = function(a, d){
   }
   return _da8(a, d);
 };
+
+// ---- v7.0: owner = color + pattern + initial (option C) ----
+function ownerLabels(V){
+  var out = {}, firsts = {};
+  (V.players || []).forEach(function(p){ var f = (p.name || '?').trim().charAt(0).toUpperCase(); firsts[f] = (firsts[f] || 0) + 1; });
+  (V.players || []).forEach(function(p){
+    var n = (p.name || '?').trim(), f = n.charAt(0).toUpperCase();
+    out[p.i] = firsts[f] > 1 ? f + (n.replace(/[^A-Za-zÀ-ú0-9]/g, '').charAt(1) || String(p.i + 1)).toLowerCase() : f;
+  });
+  return out;
+}
+var _th9 = tileHTML;
+tileHTML = function(V, t){
+  var h = _th9(V, t);
+  var owner = t.owner >= 0 ? V.players[t.owner] : null;
+  if (owner && (t.type === 'prop' || t.type === 'vice')){
+    var lab = ownerLabels(V)[owner.i];
+    h = h.replace(/<span class="own"[\s\S]*?<\/svg><\/span>/, '<span class="own ownl" title="Dono: ' + esc(owner.name) + '" style="--oc:' + owner.color + '">' + esc(lab) + '</span>');
+    h = h.replace(/<i class="oframe"[^>]*><\/i>/, '');
+  }
+  return h;
+};
+function applyPatterns(V){
+  if (!V || !V.tiles) return;
+  V.tiles.forEach(function(t){
+    var el = $('#tile-' + t.i); if (!el) return;
+    var o = t.owner >= 0 ? V.players[t.owner] : null;
+    if (o){ el.dataset.pat = String(o.i % 6); el.style.setProperty('--oc', o.color); } else delete el.dataset.pat;
+  });
+  var labs = ownerLabels(V);
+  (V.players || []).forEach(function(p){
+    var ch = $('#pl-' + p.i); if (ch){ ch.dataset.pat = String(p.i % 6); ch.style.setProperty('--oc', p.color); var b = $('.patlab', ch); if (!b){ b = document.createElement('span'); b.className = 'patlab'; var av = $('.av', ch); if (av) av.appendChild(b); } if (b) b.textContent = labs[p.i]; }
+    var tk = $('#tok-' + p.i); if (tk){ tk.dataset.pat = String(p.i % 6); tk.style.setProperty('--oc', p.color); }
+  });
+  $$('.srow').forEach(function(r, k){});
+}
+var _ug9 = updateGame;
+updateGame = function(){ _ug9.apply(this, arguments); try { applyPatterns(view()); } catch(e){} };
 
 if (location.hash === '#debug') window.__bl = { N: N, BL: BL, refresh: function(){ N.view = BL.publicState(N.S); render(); }, x: function(f){ return eval(f); } };
 render();
