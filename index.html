@@ -1250,7 +1250,7 @@ var BL = (function () {
   function maybeDuel(S, p) {
     if (p.ghost || p.pos === 10) return;
     var others = S.players.filter(function (q) { return q !== p && !q.ghost && q.pos === p.pos && q.jail === 0; });
-    if (others.length && rnd(2) === 0) S.duelPending = { a: p.i, b: pick(others).i };
+    if (others.length) S.duelPending = { a: p.i, b: pick(others).i };
   }
   function startDuel(S, a, b, now) {
     var games = S.local ? ['dados'] : ['click', 'timer', 'rps', 'reflex', 'dados'];
@@ -1314,7 +1314,9 @@ var BL = (function () {
       pay(S, loser, D.stake, winner, now);
       fx(S, 'stamp', { p: loser.i, text: 'Perdeu' });
     }
+    var evd = D.event;
     S.duel = null;
+    if (evd) { var dd = debtor(S); if (dd) { S.pending = { kind: 'resolve' }; startSell(S, dd, now); S.afterSell = null; S.sellThenBegin = true; return; } beginTurn(S, now); return; }
     S.pending = { kind: 'resolve' };
     afterResolve(S, now);
   }
@@ -1384,13 +1386,25 @@ var BL = (function () {
     var n = S.players.length;
     for (var k = 0; k < n * 3; k++) {
       S.turn = (S.turn + 1) % n;
-      if (S.turn === 0) { S.round++; if (S.round % 3 === 0) startNews(S, now); else if (S.round % 3 === 2) S.auctionDue = true; }
+      if (S.turn === 0) { S.round++; if (S.round % 3 === 0) startNews(S, now); if (S.round % 5 === 4) S.auctionDue = true; else if (S.round > 1 && S.round % 3 === 1) S.duelDue = true; }
       var p = cur(S);
       if (!p.ghost && p.skip > 0) { p.skip--; log(S, p.name + ' perdeu a vez (ainda se recuperando).'); continue; }
       if (S.auctionDue && roundAuction(S, now)) return;
+      if (S.duelDue && roundDuel(S, now)) return;
       beginTurn(S, now); return;
     }
     beginTurn(S, now);
+  }
+  function roundDuel(S, now) {
+    S.duelDue = false;
+    var al = alive(S).filter(function (q) { return q.jail === 0; });
+    if (al.length < 2) return false;
+    al.sort(function (x, y) { return patrimony(S, y) - patrimony(S, x); });
+    var a = al[0], b = rnd(2) === 0 ? al[al.length - 1] : pick(al.slice(1));
+    log(S, '🎮 MINIGAME DA RODADA! O jogo escolheu quem vai se enfrentar: ' + a.name + ' (o mais rico) contra ' + b.name + '.', 'big');
+    startDuel(S, a.i, b.i, now);
+    S.duel.event = true;
+    return true;
   }
   function roundAuction(S, now) {
     S.auctionDue = false;
@@ -1436,8 +1450,7 @@ var BL = (function () {
     var dbl = d[0] === d[1];
     if (dbl) S.doubles++;
     if (S.doubles >= 3) {
-      log(S, p.name + ' tirou dados iguais 3 vezes. Suspeito. Vai morar com a sogra.', 'bad');
-      sendSogra(S, p, now); S.extraRoll = false;
+      sendSogra(S, p, now, 'tirou dados iguais 3 vezes seguidas. Ninguém tem tanta sorte assim, a polícia da sorte desconfiou'); S.extraRoll = false;
       S.pending = { kind: 'resolve' }; afterResolve(S, now); return;
     }
     S.extraRoll = dbl;
@@ -1481,16 +1494,28 @@ var BL = (function () {
     log(S, p.name + (exact ? ' caiu certinho no Dia do pagamento: ' : ' passou pelo Dia do pagamento: ') + '+' + money(amt) + '. Já está tudo gasto.', 'good');
     if (rnd(3) === 0) giveCurse(S, p, 'De brinde no salário');
   }
-  function sendSogra(S, p, now) {
-    p.pos = 10; p.jail = 3; p.moveId = uid(); p.moveFrom = p.pos; p.moveSteps = 0; p.st.sogra++;
-    fx(S, 'stamp', { p: p.i, text: 'Mudou pra sogra' });
+  var SOGRA_JOKES = [
+    'A sogra já arrumou o colchão no chão da sala.',
+    'Senha do Wi-Fi da sogra: o nome do cachorro que morreu em 2009.',
+    'Novela das nove agora é obrigatória. Com comentários.',
+    'Vai ouvir "engordou, hein?" em 3, 2, 1.',
+    'Leva o próprio papel higiênico. Ela conta os rolos.',
+    'Café da manhã às 5h40, com sermão incluso.',
+    'O quarto de hóspedes virou depósito de Tupperware. Boa sorte.',
+    'Ela já mandou no grupo da família que você "está passando por um momento".'
+  ];
+  function sendSogra(S, p, now, why) {
+    var from = p.pos;
+    p.pos = 10; p.jail = 3; p.moveId = uid(); p.moveFrom = from; p.moveSteps = 0; p.st.sogra++;
+    log(S, '🚔 ' + p.name + ' foi despachado pra casa da sogra. Motivo: ' + (why || 'o destino quis assim') + '. ' + pick(SOGRA_JOKES) + ' (Fica até 3 rodadas, ou paga ' + money(JAIL_FEE) + ', ou tira dados iguais pra fugir.)', 'big');
+    fx(S, 'stamp', { tile: 10, text: 'Chegou ' + p.name });
   }
 
   function resolveTile(S, p, now) {
     var t = S.tiles[p.pos];
     switch (t.type) {
       case 'start': return;
-      case 'jail': log(S, p.name + ' passou na frente da casa da sogra. Ela acenou. Que medo.'); return;
+      case 'jail': log(S, '👵 ' + p.name + ' parou na casa da sogra só de VISITA. Não está preso, pode jogar normal na próxima. Ela ofereceu bolo seco e perguntou dos netos.', 'good'); return;
       case 'tax':
         log(S, p.name + ' caiu em ' + t.name + ' e pagou ' + money(t.amount) + '.', 'bad');
         pay(S, p, t.amount, null, now); return;
@@ -1559,6 +1584,7 @@ var BL = (function () {
     var d = debtor(S);
     if (d) { startSell(S, d, now); if (back) S.afterSell = back; return; }
     if (back && S.phase === 'game') { back.since = now; S.pending = back; return; }
+    if (S.sellThenBegin) { S.sellThenBegin = false; beginTurn(S, now); return; }
     S.pending = { kind: 'resolve' }; afterResolve(S, now);
   }
   function sellTile(S, t, half) {
@@ -1654,7 +1680,7 @@ var BL = (function () {
         case 'fromEach':
           alive(S).forEach(function (q) { if (q !== target && !q.ghost) pay(S, q, n, target, now); }); break;
         case 'sogra':
-          sendSogra(S, target, now);
+          sendSogra(S, target, now, 'carta de Sorte ou Revés' + (target === drawer ? ' que ele mesmo tirou' : ' tirada por ' + drawer.name));
           if (target === drawer) S.extraRoll = false;
           return;
         case 'goto':
@@ -1675,9 +1701,11 @@ var BL = (function () {
   }
   function giveCurse(S, p, why) {
     if (p.ghost || p.curses.length >= MAX_CURSES) return;
-    var c = pick(CURSES);
+    var pool = CURSES.filter(function (x) { return p.curses.indexOf(x.id) < 0; });
+    if (!pool.length) return;
+    var c = pick(pool);
     p.curses.push(c.id);
-    log(S, '😈 ' + p.name + ' ganhou uma maldição guardada (' + why + ').');
+    log(S, '😈 ' + p.name + ' ganhou uma NOVA maldição: "' + c.n + '" (' + why + '). Agora tem ' + p.curses.length + ' guardada' + (p.curses.length > 1 ? 's' : '') + '.');
   }
   function curseById(id) { for (var i = 0; i < CURSES.length; i++) if (CURSES[i].id === id) return CURSES[i]; return CURSES[0]; }
   function playCurse(S, p, idx, tgt, now) {
@@ -1685,11 +1713,11 @@ var BL = (function () {
     var t = S.players[tgt];
     if (!t || t.ghost || t === p) return false;
     p.curses.splice(idx, 1); p.cursedThisTurn = true;
-    log(S, '😈 ' + p.name + ' jogou "' + c.n + '" em ' + t.name + '.', 'bad');
+    log(S, '😈 ' + p.name + ' jogou "' + c.n + '" em ' + t.name + '. A carta foi gasta' + (p.curses.length ? ' (ainda tem ' + p.curses.length + ' guardada).' : ' e acabaram as maldições dele.'), 'bad');
     fx(S, 'curse', { from: p.i, to: t.i, text: c.n });
     switch (cid) {
       case 'print': changeSanity(S, t, -20, now); break;
-      case 'sogra': sendSogra(S, t, now); log(S, t.name + ' foi morar com a sogra.', 'bad'); break;
+      case 'sogra': sendSogra(S, t, now, 'maldição "Contar pra sogra" jogada por ' + p.name); break;
       case 'emprestimo': var v = Math.min(150, Math.max(0, t.money)); pay(S, t, v, p, now); break;
       case 'post': t.skip += 1; break;
       case 'denuncia': downgradeBest(S, t); break;
@@ -3919,7 +3947,7 @@ function doAct(a, d){
     case 'ghostCancel': ghostSel = null; choose = null; render(); break;
     case 'target':
       var ti = Number(d.i);
-      if (curseSel != null){ act({ type: 'curse', idx: curseSel, target: ti }); curseSel = null; }
+      if (curseSel != null){ var mm = me(); if (mm && !mm.cursedThisTurn && Date.now() > (window.__curseLock || 0)){ window.__curseLock = Date.now() + 4000; act({ type: 'curse', idx: curseSel, target: ti }); } curseSel = null; }
       else if (ghostSel){ act({ type: 'ghost', action: ghostSel, target: ti }); ghostSel = null; }
       render(); break;
     case 'tile':
@@ -4306,7 +4334,7 @@ function renderAction0(V){
     switch (P.kind){
       case 'roll':
         if (curseSel != null) h = acCard('😈 Escolha a vítima', 'Clique em quem vai levar <b>' + esc(BL.curseById(M.curses[curseSel]).n) + '</b> na barra de jogadores lá em cima.', '<button data-act="cancelCurse">Cancelar</button>');
-        else if (M.curses.length && !M.cursedThisTurn) h = '<div class="ach small">Maldições guardadas</div><div class="acb">' + M.curses.map(function(c, k){ var cc = BL.curseById(c); return '<button class="purple" data-act="curse" data-k="' + k + '" title="' + esc(cc.d) + '">😈 ' + esc(cc.n) + '</button>'; }).join('') + '</div>';
+        else if (M.curses.length && !M.cursedThisTurn && Date.now() > (window.__curseLock || 0)) h = '<div class="ach small">Maldições guardadas</div><div class="acb">' + M.curses.map(function(c, k){ var cc = BL.curseById(c); return '<button class="purple" data-act="curse" data-k="' + k + '" title="' + esc(cc.d) + '">😈 ' + esc(cc.n) + '</button>'; }).join('') + '</div>';
         break;
       case 'jail':
         h = acCard('👵 Morando com a sogra', 'Faltam ' + M.jail + ' vez(es). Role e tire dados iguais pra fugir, ou pague a mudança.', '<button data-act="payJail"' + (M.money < BL.JAIL_FEE ? ' disabled' : '') + '>Pagar ' + bb(BL.JAIL_FEE) + ' e sair</button>');
@@ -4473,7 +4501,7 @@ function duelHTML(V, M){
   var A = V.players[D.a], B = V.players[D.b];
   var mine = N.mode === 'local' || (M && (M.i === D.a || M.i === D.b));
   var face = function(p){ return '<div class="dfighter" style="--pc:' + p.color + '"><span class="vav" data-mood="grr">' + pieceSVG(p.piece) + '</span><b>' + esc(p.name) + '</b><span class="dres" id="dres-' + p.i + '"></span></div>'; };
-  var h = '<div class="ach">⚔️ Duelo relâmpago</div><div class="dvs">' + face(A) + '<span class="vs">x</span>' + face(B) + '</div>' +
+  var h = '<div class="ach">' + (D.event ? '🎮 Minigame da rodada' : '⚔️ Duelo relâmpago') + '</div><div class="dvs">' + face(A) + '<span class="vs">x</span>' + face(B) + '</div>' +
     '<div class="dgame"><b>' + esc(D.n) + '</b><span>' + esc(D.d) + '</span></div>' +
     '<div class="darena" id="darena" data-game="' + D.game + '" data-id="' + D.id + '" data-mine="' + (mine ? 1 : 0) + '"></div>';
   return h;
@@ -4542,7 +4570,7 @@ var HELP = [
   ['🎲', 'Sua vez', 'Role os dados e ande. Casa sem dono: compre ou passe. Passar pelo começo dá B$300. Casa de outro: pague aluguel e, se tiver dinheiro, faça uma tomada hostil pagando o dobro.'],
   ['🧠', 'Sua casa e sua sanidade', 'Caiu na sua própria casa: se tiver todos os terrenos da cor, construa um andar (aluguel sobe); ou relaxe pra recuperar sanidade, ou só pule. Se a sanidade zerar, você surta, perde a vez e vende uma casa no desespero.'],
   ['⚖️', 'Casas especiais', 'Sorte ou revés tem cartas feitas com os podres do grupo. Tribunal é votação. Maldição te dá uma carta pra jogar nos outros. Fofoca dobra um aluguel seu. Uber bêbado leva pra qualquer casa. Sogra é a prisão.'],
-  ['📰', 'Caos extra', 'A cada 3 rodadas sai um Plantão da semana que muda as regras, e também rola um Leilão da rodada com um imóvel sem dono, aberto pra todo mundo. Caiu na mesma casa que alguém? Pode rolar um duelo relâmpago valendo dinheiro.'],
+  ['📰', 'Caos extra', 'A cada 3 rodadas sai um Plantão da semana que muda as regras e rola um Minigame da rodada entre dois jogadores. De vez em quando o banco faz um Leilão da rodada com um imóvel sem dono. Caiu na mesma casa que alguém? Sempre rola um duelo relâmpago valendo dinheiro.'],
   ['👻', 'Fantasma e zoeira', 'Faliu? Vira fantasma e continua assombrando todo mundo. Use o botão Zoeira pra provocar com a sua peça e mandar reações. A qualquer hora, toque no ? pra rever tudo.']
 ];
 var helpIdx = 0;
@@ -5010,6 +5038,14 @@ function renderThreats(V){
 }
 var _ug4c = updateGame;
 updateGame = function(){ _ug4c.apply(this, arguments); try { renderThreats(view()); } catch(e){} };
+
+var _ev5 = evType;
+evType = function(t){
+  if (/MINIGAME DA RODADA/.test(t)) return ['duel', '🎮', 'Minigame da rodada'];
+  if (/despachado pra casa da sogra/.test(t)) return ['sogra', '🚔', 'Foi pra casa da sogra'];
+  if (/só de VISITA/.test(t)) return ['sogra', '👵', 'Só uma visitinha'];
+  return _ev5(t);
+};
 if (location.hash === '#debug') window.__bl = { N: N, BL: BL, refresh: function(){ N.view = BL.publicState(N.S); render(); }, x: function(f){ return eval(f); } };
 render();
 })();
