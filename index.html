@@ -1,35 +1,48 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><meta name="description" content="Monopoly sem freio pra jogar com os amigos: casas da sua cidade, cartas com os podres do grupo, tribunal, maldições e falência com estilo."><meta property="og:title" content="Bad Landlords"><meta property="og:description" content="Monopoly sem freio pra jogar com os amigos. Cria a sala, manda o código e que vença o pior."><meta property="og:type" content="website"><meta name="theme-color" content="#5BBDF0"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><script>(function(){
+<head><meta name="description" content="Jogo de tabuleiro de imóveis sem freio pra jogar com os amigos: casas da sua cidade, os podres do grupo, tribunal, maldições e falência com estilo."><meta property="og:title" content="Bad Landlords"><meta property="og:description" content="Tabuleiro de imóveis sem freio pra jogar com os amigos. Cria a sala, manda o código e que vença o pior."><meta property="og:type" content="website"><meta name="theme-color" content="#5BBDF0"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><script>(function(){
   if (window.claude && window.claude.use) return;
   var LS = window.localStorage;
   function lsGet(k){ try { return LS.getItem(k); } catch(e){ return null; } }
   function lsSet(k, v){ try { LS.setItem(k, v); } catch(e){} }
-  var uid = lsGet('bl_site_uid');
-  if (!uid){ uid = 'p' + Math.random().toString(36).slice(2, 12) + Date.now().toString(36); lsSet('bl_site_uid', uid); }
-  var tabId = uid + '-' + Math.random().toString(36).slice(2, 7);
+  // a secret that never leaves this browser except to our own server; the public id is its hash
+  function rnd(n){ var a = new Uint8Array(n); crypto.getRandomValues(a); return Array.from(a, function(b){ return 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'[b & 63]; }).join(''); }
+  var key = lsGet('bl_site_key');
+  if (!key || !/^[A-Za-z0-9_-]{20,64}$/.test(key)){ key = rnd(32); lsSet('bl_site_key', key); }
+  var uidP = crypto.subtle.digest('SHA-256', new TextEncoder().encode(key)).then(function(buf){
+    return Array.from(new Uint8Array(buf), function(b){ return ('0' + b.toString(16)).slice(-2); }).join('').slice(0, 20);
+  });
+  var tabSuffix = rnd(8).toLowerCase().replace(/[^a-z0-9]/g, 'x');
   function post(path, body){
     return fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), keepalive: false }).then(function(r){ if (!r.ok && r.status !== 204) throw new Error('http ' + r.status); });
   }
-  function channel(ch){
+  function channel(ch, uid){
+    var tabId = uid + '-' + tabSuffix;
     var handlers = {}, peerFns = [], lastPeers = [], closed = false, presence = null, lastPres = 0;
-    var es = new EventSource('/rt/sse?ch=' + encodeURIComponent(ch) + '&id=' + encodeURIComponent(tabId));
-    es.addEventListener('msg', function(e){ var m; try { m = JSON.parse(e.data); } catch(x){ return; } (handlers[m.topic] || []).forEach(function(f){ try { f(m.data); } catch(x){} }); });
+    var es = new EventSource('/rt/sse?ch=' + encodeURIComponent(ch) + '&id=' + encodeURIComponent(tabId) + '&k=' + encodeURIComponent(key));
+    es.addEventListener('error', function(){ if (es.readyState !== 1){ isOpen = false; ready = new Promise(function(r){ openRes = r; setTimeout(r, 6000); }); } });
+    es.addEventListener('msg', function(e){ var m; try { m = JSON.parse(e.data); } catch(x){ return; } (handlers[m.topic] || []).forEach(function(f){ try { f(m.data, m.from); } catch(x){} }); });
     es.addEventListener('peers', function(e){ try { lastPeers = JSON.parse(e.data); } catch(x){ return; } peerFns.forEach(function(f){ try { f(lastPeers); } catch(x){} }); });
-    es.addEventListener('open', function(){ lastPres = Date.now(); if (presence) post('/rt/presence', { ch: ch, id: tabId, presence: presence }).catch(function(){}); });
+    var openRes, ready = new Promise(function(r){ openRes = r; }), isOpen = false;
+    setTimeout(function(){ openRes(); }, 6000);
+    // messages wait until the stream is open, because the relay only accepts talk from connected tabs
+    function send(path, body){ return (isOpen ? Promise.resolve() : ready).then(function(){ return post(path, body); }).catch(function(){}); }
+    es.addEventListener('open', function(){ isOpen = true; openRes(); lastPres = Date.now(); if (presence) post('/rt/presence', { ch: ch, id: tabId, k: key, presence: presence }).catch(function(){}); });
     var api = {
-      emit: function(topic, data){ return post('/rt/emit', { ch: ch, id: tabId, topic: topic, data: data }); },
+      emit: function(topic, data){ return send('/rt/emit', { ch: ch, id: tabId, k: key, topic: topic, data: data }); },
       on: function(topic, fn){ (handlers[topic] = handlers[topic] || []).push(fn); return function(){ handlers[topic] = (handlers[topic] || []).filter(function(f){ return f !== fn; }); }; },
-      presence: function(p){ var nx = Object.assign({}, presence || {}, p || {}); var same = JSON.stringify(nx) === JSON.stringify(presence); presence = nx; if (same && Date.now() - lastPres < 60000) return Promise.resolve(); lastPres = Date.now(); return post('/rt/presence', { ch: ch, id: tabId, presence: presence }).catch(function(){}); },
+      presence: function(p){ var nx = Object.assign({}, presence || {}, p || {}); var same = JSON.stringify(nx) === JSON.stringify(presence); presence = nx; if (same && Date.now() - lastPres < 60000) return Promise.resolve(); lastPres = Date.now(); return send('/rt/presence', { ch: ch, id: tabId, k: key, presence: presence }); },
       onPeers: function(fn){ peerFns.push(fn); if (lastPeers.length) fn(lastPeers); },
-      leave: function(){ if (closed) return; closed = true; es.close(); post('/rt/leave', { ch: ch, id: tabId }).catch(function(){}); }
+      leave: function(){ if (closed) return; closed = true; es.close(); post('/rt/leave', { ch: ch, id: tabId, k: key }).catch(function(){}); }
     };
     return api;
   }
   var lobby = null;
   var room = function(){
-    if (!lobby){ lobby = channel('lobby'); lobby.join = function(name){ return Promise.resolve(channel(String(name).toLowerCase())); }; }
-    return lobby;
+    return uidP.then(function(uid){
+      if (!lobby){ lobby = channel('lobby', uid); lobby.join = function(name){ return Promise.resolve(channel(String(name).toLowerCase(), uid)); }; }
+      return lobby;
+    });
   };
   var db = {
     collection: function(path){
@@ -43,9 +56,9 @@
       } };
     }
   };
-  var user = { id: function(){ return Promise.resolve(uid); } };
+  var user = { id: function(){ return uidP; } };
   var caps = { room: room, db: function(){ return db; }, user: function(){ return user; } };
-  window.claude = { use: function(name){ return new Promise(function(res){ setTimeout(function(){ res(caps[name] ? caps[name]() : null); }, 0); }); } };
+  window.claude = { use: function(name){ return new Promise(function(res){ setTimeout(function(){ res(caps[name] ? caps[name]() : null); }, 0); }); }, secure: true };
 })();
 </script>
 <meta charset="utf-8">
@@ -2882,9 +2895,10 @@ var BL = (function () {
     var nm = norm(name); if (!nm) return false;
     var p = (S.players || []).filter(function (x) { return norm(x.name) === nm && !x.bot; })[0];
     if (!p) return false;
-    var old = p.cid; p.cid = cid;
+    var old = p.cid;
+    if (S.hostCid === old) return false;
+    p.cid = cid;
     S.seats.forEach(function (s) { if (s.cid === old) s.cid = cid; });
-    if (S.hostCid === old) S.hostCid = cid;
     log(S, p.name + ' voltou pra mesa.');
     return true;
   }
@@ -3310,7 +3324,14 @@ var myName = ls('bl_name') || '';
 
 function unwrap(a){ if (a && typeof a === 'object' && a.data !== undefined && a.code === undefined && a.it === undefined && a.s === undefined) return a.data; return a; }
 
+function cidOnline(cid){ return (N.peers || []).some(function(p){ var st = p && p.presence; return st && st.cid === cid; }); }
 function hostApply(cid, it){
+  // a seat can only be taken over by name if its owner is really gone
+  if (it && it.type === 'join' && N.S && N.S.phase !== 'lobby' && N.mode === 'online'){
+    var nm = String(it.name || '').trim().toLowerCase();
+    var tgt = (N.S.players || []).filter(function(x){ return !x.bot && String(x.name || '').trim().toLowerCase() === nm; })[0];
+    if (tgt && tgt.cid !== cid && cidOnline(tgt.cid)) return false;
+  }
   var ok = BL.apply(N.S, cid, it, Date.now());
   if (ok){ N.S.v++; afterHostChange(); }
   return ok;
@@ -3407,16 +3428,24 @@ function joinSub(code, asHost){
   });
 }
 function wireSub(code, asHost){
-  N.sub.on('intent', function(a){
+  N.sub.on('intent', function(a, from){
     var m = unwrap(a);
     if (!N.isHost || !m || m.code !== N.code || !m.cid || !m.it) return;
+    // the relay stamps who really sent it; nobody can act as someone else
+    if (window.claude && window.claude.secure && (!from || 'u' + from !== String(m.cid))) return;
     hostApply(String(m.cid), m.it);
   });
-  N.sub.on('state', function(a){
+  N.sub.on('state', function(a, from){
     var m = unwrap(a);
     if (N.isHost || !m || m.code !== N.code) return;
+    var secure = window.claude && window.claude.secure;
+    if (secure && (!from || (N.hostFrom && N.hostFrom.code === code && N.hostFrom.from !== from))) return;
     if (m.id && m.n){ var full = onStateChunk(m); if (!full) return; m = full; }
     if (!m.s) return;
+    if (secure){
+      if ('u' + from !== m.s.hostCid) return;
+      if (!N.hostFrom || N.hostFrom.code !== code) N.hostFrom = { code: code, from: from };
+    }
     if (N.view && m.s.epoch === N.view.epoch && m.s.v < N.view.v) return;
     N.offset = (m.now || Date.now()) - Date.now();
     N.lastSeenHost = Date.now();
@@ -3510,7 +3539,7 @@ function createRoom(){
   if (!N.room){ showErr('homeErr', 'O modo online só funciona na página publicada do jogo. Use “Jogar na mesma tela” por enquanto.'); return; }
   if (creating) return; creating = true;
   showErr('homeErr', ''); var hb = $('[data-act=create]'); if (hb) hb.textContent = 'Criando sala…';
-  var code = rid(4);
+  var code = rid(5);
   var S = BL.newState(code, N.cid);
   withTimeout(loadPack(), 3000, null).then(function(pack){
     if (pack){
@@ -3533,7 +3562,7 @@ var creating = false;
 function joinRoom(code){
   if (!needName()) return;
   code = String(code || '').trim().toUpperCase();
-  if (!/^[A-Z0-9]{4}$/.test(code)){ showErr('homeErr', 'O código da sala tem 4 letras ou números.'); return; }
+  if (!/^[A-Z0-9]{4,5}$/.test(code)){ showErr('homeErr', 'O código da sala tem 5 letras ou números.'); return; }
   if (!N.room){ showErr('homeErr', 'O modo online só funciona na página publicada do jogo.'); return; }
   N.view = null;
   joinSub(code, false).then(function(){ render(); }, function(e){
@@ -3954,7 +3983,7 @@ function buildHome(){
       '<label for="nameIn">Seu nome</label><input id="nameIn" maxlength="20" placeholder="Lorenzo" value="' + esc(myName) + '">' +
       '<div class="row" style="margin-top:14px"><button class="big go" data-act="create" style="flex:1">Criar sala online</button></div>' +
       '<label for="codeIn" style="margin-top:12px">Tem um código?</label>' +
-      '<div class="row"><input id="codeIn" maxlength="4" placeholder="K7X2" style="flex:1;text-transform:uppercase;letter-spacing:4px;font-weight:800"><button data-act="join">Entrar</button></div>' +
+      '<div class="row"><input id="codeIn" maxlength="5" placeholder="K7X2Q" style="flex:1;text-transform:uppercase;letter-spacing:4px;font-weight:800"><button data-act="join">Entrar</button></div>' +
       '<div class="rooms" id="rooms"></div>' +
       '<div class="row" style="margin-top:14px"><button class="ghostbtn" data-act="local" style="flex:1">Jogar na mesma tela</button></div>' +
       resume +
@@ -7655,7 +7684,7 @@ showNextEvent = function(){
   _sneV77();
 };
 
-if (location.hash === '#debug') window.__bl = { N: N, BL: BL, refresh: function(){ N.view = BL.publicState(N.S); render(); }, x: function(f){ return eval(f); } };
+if (location.hash === '#debug' && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) window.__bl = { N: N, BL: BL, refresh: function(){ N.view = BL.publicState(N.S); render(); }, x: function(f){ return eval(f); } };
 render();
 })();
 </script>
